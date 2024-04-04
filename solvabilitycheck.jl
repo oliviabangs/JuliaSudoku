@@ -1,6 +1,6 @@
-function generate_solve_board(board::Array{UInt, 2})::Array{UInt, 2}
+function generate_solve_board(board::Array{Int, 2})::Array{Int, 2}
     # Creates a list of the location of the hints
-    hints::Vector{Tuple{UInt, UInt}} = []
+    hints::Vector{Tuple{Int, Int}} = []
 
     # Loops through rows
     for i in 1:size(board, 1)     
@@ -14,7 +14,7 @@ function generate_solve_board(board::Array{UInt, 2})::Array{UInt, 2}
     return solving_recursive_helper(board, (0,0), hints, false, 0)
 end
 
-function solving_recursive_helper(board::Array{UInt, 2}, pos::Tuple{UInt, UInt}, hints::Vector{Tuple{UInt, UInt}}, backtracking::Bool, num_touch::UInt)::Array{UInt, 2}
+function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hints::Vector{Tuple{Int, Int}}, backtracking::Bool, num_touch::Int)::Array{Int, 2}
     # Keeping track of how many times the recusion happens to catch infinite insolvability loops before they happen
     num_touch += 1
 
@@ -24,10 +24,10 @@ function solving_recursive_helper(board::Array{UInt, 2}, pos::Tuple{UInt, UInt},
     # Handles when the position is not a hint
     elseif !(pos in hints)
         # Increments the value already at that location
-        value::UInt = board[pos[1], pos[2]] + 1
+        value::Int = board[pos[1], pos[2]] + 1
 
         # Checks whether that value or another is possible
-        current_value::UInt = fill_cell(board, value, pos)
+        current_value::Int = fill_cell(board, value, pos)
 
         # Indicates that backtracking is needed
         if current_value == 100
@@ -53,7 +53,7 @@ function solving_recursive_helper(board::Array{UInt, 2}, pos::Tuple{UInt, UInt},
     end
 end
 
-function fill_cell(board::Array{UInt, 2}, value::UInt, pos::Tuple{UInt, UInt})::UInt
+function fill_cell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
     if value > 9
         return 100
     end
@@ -66,7 +66,8 @@ function fill_cell(board::Array{UInt, 2}, value::UInt, pos::Tuple{UInt, UInt})::
     end
 end
 
-function move_backwards(pos::Tuple{UInt, UInt}, number_of_times::UInt)::Tuple{UInt, UInt}
+function move_backwards(pos::Tuple{Int, Int}, number_of_times::Int)::Tuple{Int, Int}
+    # First digit in tuple is row
     if pos == (1, 1)
         return (1, 1)
     end
@@ -84,7 +85,7 @@ function move_backwards(pos::Tuple{UInt, UInt}, number_of_times::UInt)::Tuple{UI
     return (new_row, new_col)
 end
 
-function move_forwards(pos::Tuple{UInt, UInt}, number_of_times::UInt)::Tuple{UInt, UInt}
+function move_forwards(pos::Tuple{Int, Int}, number_of_times::Int)::Tuple{Int, Int}
     if pos == (9, 9)
         return (9, 9)
     end
