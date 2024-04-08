@@ -1,3 +1,5 @@
+include("utilities.jl")
+
 function generate_solve_board(board::Array{Int, 2})::Array{Int, 2}
     # Creates a list of the location of the hints
     hints::Vector{Tuple{Int, Int}} = []
@@ -39,7 +41,7 @@ function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hi
         else
             # Value update and position moves forward
             board[pos[1], pos[2]] = current_value
-            return solving_recursive_helper(board, move_fowards(pos, 1), hints, false, num_touch)
+            return solving_recursive_helper(board, move_forwards(pos, 1), hints, false, num_touch)
         end
     # Handles if the position is a hint since it can't change the hint
     else
@@ -58,11 +60,15 @@ function fill_cell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
         return 100
     end
 
-    validity = valid(board, value, pos)
+    validity = validacrossboard(board, value, pos)
     if validity 
         return value
     else
-        return fill_cell(board, value + 1, pos)
+        if value == 9
+            return 100
+        else
+            return fill_cell(board, value + 1, pos)
+        end
     end
 end
 
