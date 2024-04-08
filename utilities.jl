@@ -1,4 +1,4 @@
-include("solvabilitycheck.jl")
+#include("solvabilitycheck.jl")
 
 function check_spot_occupied(row::Int, col::Int, board_state::Array{Int, 2})::Bool
     return board_state[row, col] == 0
@@ -130,7 +130,7 @@ function getboxslice(box, board)
 end
 
 #Some informal testing
-function validtests()
+function utilitiestests()
     #Creating a board and inserting values into it (putting the box's number in its bottom right cell)
     testingboard = fill(0, 9, 9)
     testingboard[3, 3] = 1
@@ -142,52 +142,14 @@ function validtests()
     testingboard[9, 3] = 7
     testingboard[9, 6] = 8
     testingboard[9, 9] = 9
-
-    # Board filled with values of 1
-    testingboard2 = fill(1, 9, 9)
-
-    # Board w/ only valid hiints
-    testingboard3 = fill(0, 9, 9)
-    testingboard3[1, 6] = 6
-    testingboard3[1, 7] = 2
-    testingboard3[1, 8] = 8
-    testingboard3[2, 5] = 3
-    testingboard3[3, 2] = 9
-    testingboard3[3, 3] = 5
-    testingboard3[4, 3] = 4
-    testingboard3[4, 7] = 9
-    testingboard3[4, 8] = 7
-    testingboard3[5, 5] = 8
-    testingboard3[6, 3] = 2
-    testingboard3[6, 6] = 4
-    testingboard3[7, 1] = 5
-    testingboard3[7, 4] = 7
-    testingboard3[8, 5] = 1
-    testingboard3[8, 8] = 6
-    testingboard3[9, 2] = 1
-    testingboard3[9, 9] = 3
     
-    # #False tests
+    # False tests
     # println(validacrossboard(testingboard, 1, (7,3))) #should be false (col conflict)
     # println(validacrossboard(testingboard, 4, (6,4))) #should be false (row conflict)
     # println(validacrossboard(testingboard, 3, (2,8))) #should be false (box conflict)
-    # println(check_spot_occupied(3, 3, testingboard)) # Should be false (spot occupied)
-    # println(every_spot_full(testingboard)) # Should be false (not every spot is not empty)
     
-    # #True tests
+    # True tests
     # println(validacrossboard(testingboard, 5, (8,1))) #should be true
     # println(validacrossboard(testingboard, 8, (7,1))) #should be true
-    # println(check_spot_occupied(3, 2, testingboard)) # Should be true (spot not occupied)
-    # println(every_spot_full(testingboard2)) # Should be true (every cell is not empty)
-
-    #println(fill_cell(testingboard3,1,(1,1)))
-
-    # println(move_backwards((9,9), 2)) # Should be (9,7)
-    # println(move_backwards((9,1), 1)) # Should be (8,9)
-    # println(move_backwards((1,1), 2)) # Should be (1,1)
-
-    # println(move_forwards((9,9), 1)) # Should be (9,9)
-    # println(move_forwards((8,9), 1)) # Should be (9,1)
-    # println(move_forwards((9,7), 2)) # Should be (9,9)
     
 end
