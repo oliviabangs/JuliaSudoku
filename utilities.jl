@@ -49,6 +49,7 @@ function validincolumn(board, value, position)
     col = board[:, position[2]]
     for cell in col
         if cell == value
+            #println("Column violation")
             return false
         end
     end
@@ -60,6 +61,7 @@ function validinrow(board, value, position)
     row = board[position[1], :]
     for cell in row
         if cell == value
+            #println("Row violation")
             return false
         end
     end
@@ -72,6 +74,7 @@ function validinbox(board, value, position)
     box = getboxslice(currentbox, board)
     for cell in box
         if cell == value
+            println("Box violation")
             return false
         end
     end
@@ -143,13 +146,15 @@ function utilitiestests()
     testingboard[9, 6] = 8
     testingboard[9, 9] = 9
     
+    printboard(testingboard)
+
     # False tests
-    # println(validacrossboard(testingboard, 1, (7,3))) #should be false (col conflict)
-    # println(validacrossboard(testingboard, 4, (6,4))) #should be false (row conflict)
-    # println(validacrossboard(testingboard, 3, (2,8))) #should be false (box conflict)
+    println(validacrossboard(testingboard, 1, (7,3))) #should be false (col conflict)
+    println(validacrossboard(testingboard, 4, (6,4))) #should be false (row conflict)
+    println(validacrossboard(testingboard, 3, (2,8))) #should be false (box conflict)
     
     # True tests
-    # println(validacrossboard(testingboard, 5, (8,1))) #should be true
-    # println(validacrossboard(testingboard, 8, (7,1))) #should be true
+    println(validacrossboard(testingboard, 5, (8,1))) #should be true
+    println(validacrossboard(testingboard, 8, (7,1))) #should be true
     
 end
