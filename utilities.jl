@@ -99,7 +99,7 @@ function determinebox(position::Tuple{Int, Int})::Int
     elseif position[1] > 4 && position[1] < 7
         if position[2] > 0 && position[2] < 4
             return 4
-        elseif position[2] > 4 && position[2] < 7
+        elseif position[2] > 3 && position[2] < 7
             return 5
         else
             return 6
@@ -108,7 +108,7 @@ function determinebox(position::Tuple{Int, Int})::Int
     else
         if position[2] > 0 && position[2] < 4
             return 7
-        elseif position[2] > 4 && position[2] < 7
+        elseif position[2] > 3 && position[2] < 7
             return 8
         else
             return 9
@@ -198,8 +198,17 @@ function utilitiestests()
     # println(validacrossboard(testingboard, 4, (6,4))) # should be false (row conflict)
     # println(validacrossboard(testingboard, 3, (2,8))) # should be false (box conflict)
     # println(validinbox(testingboard, 1, (1,1))) # should be false (box conflict)
+    println(validinbox(testingboard4, 4, (3,4))) # should be false (box conflict)
+    
+    # True tests
+    # println(validacrossboard(testingboard, 5, (8,1))) # should be true
+    # println(validacrossboard(testingboard, 8, (7,1))) # should be true
+    # println(validinbox(testingboard, 2, (1,4)))
+    println(validincolumn(testingboard4, 4, (3,4))) # should be true
+    println(validinrow(testingboard4, 4, (3,4))) # should be true
 
     println(determinebox((1,3))) # should be 1
+    println(determinebox((3,4))) # should be 2
     println(determinebox((2,7))) # should be 3
     println(determinebox((5,3))) # should be 4
     println(determinebox((6,5))) # should be 5
@@ -207,27 +216,4 @@ function utilitiestests()
     println(determinebox((8,3))) # should be 7
     println(determinebox((8,5))) # should be 8
     println(determinebox((8,8))) # should be 9
-
-    println("")
-    println("Box 2")
-    println(determinebox((3,4))) # should be 2
-    println(determinebox((2,4))) # should be 2
-    println(determinebox((3,5))) # should be 2
-    println(determinebox((1,6))) # should be 2
-    println("")
-
-    # println(validinbox(testingboard4, 4, (3,6))) # should be false (box conflict)
-
-    println("")
-    println("Specific Test")
-    println(validacrossboard(testingboard4, 4, (3,4))) # should be false (box conflict)
-    println(validinbox(testingboard4, 4, (3,4))) # should be false (box conflict)
-    println(validincolumn(testingboard4, 4, (3,4))) # should be true
-    println(validinrow(testingboard4, 4, (3,4))) # should be true
-    println("")
-    
-    # True tests
-    # println(validacrossboard(testingboard, 5, (8,1))) # should be true
-    # println(validacrossboard(testingboard, 8, (7,1))) # should be true
-    # println(validinbox(testingboard, 2, (1,4)))
 end

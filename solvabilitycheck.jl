@@ -23,7 +23,7 @@ function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hi
     # Stops once every spot has a value or it appears to be unsolvable
     if every_spot_full(board) || num_touch > 10000
         println(num_touch)
-        #printboard(board)
+        printboard(board)
         return board
     # Handles when the position is not a hint
     elseif !(pos in hints)
