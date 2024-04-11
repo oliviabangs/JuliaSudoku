@@ -36,7 +36,7 @@ function printboard(board)
 end
 
 #Checks overall validity based on the row, column, and box
-function validacrossboard(board, value, position)
+function validacrossboard(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     if validincolumn(board, value, position) && validinrow(board, value, position) && validinbox(board, value, position)
         return true
     else
@@ -45,7 +45,7 @@ function validacrossboard(board, value, position)
 end 
 
 #Checks validity in column
-function validincolumn(board, value, position)
+function validincolumn(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     col = board[:, position[2]]
     for cell in col
         if cell == value
@@ -57,7 +57,7 @@ function validincolumn(board, value, position)
 end
 
 #Checks validity in row
-function validinrow(board, value, position)
+function validinrow(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     row = board[position[1], :]
     for cell in row
         if cell == value
@@ -69,12 +69,12 @@ function validinrow(board, value, position)
 end
 
 #Checks validity in box
-function validinbox(board, value, position)
-    currentbox = determinebox(position)
+function validinbox(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
+    currentbox::Int = determinebox(position)
     box = getboxslice(currentbox, board)
     for cell in box
         if cell == value
-            println("Box violation")
+            #println("Box violation")
             return false
         end
     end
@@ -82,14 +82,14 @@ function validinbox(board, value, position)
 end
 
 #Uses ranges to determine what box the position is in
-function determinebox(position)
+function determinebox(position::Tuple{Int, Int})::Int
     #Fist row of boxes
     if position[1] > 0 && position[1] < 4
         #First column of boxes
         if position[2] > 0 && position[2] < 4
             return 1
         #Middle column of boxes
-        elseif position[2] > 4 && position[2] < 7
+        elseif position[2] > 3 && position[2] < 7
             return 2
         #Last column of boxes
         else
@@ -117,7 +117,7 @@ function determinebox(position)
 end
 
 #Returns a view into a box of the board based on the given box number
-function getboxslice(box, board)
+function getboxslice(box::Int, board::Array{Int, 2})
     coords = Dict(
         1 => board[1:3, 1:3], 
         2 => board[1:3, 4:6], 
@@ -145,16 +145,89 @@ function utilitiestests()
     testingboard[9, 3] = 7
     testingboard[9, 6] = 8
     testingboard[9, 9] = 9
+
+    # Partially filled valid board
+    testingboard4 = fill(0, 9, 9)
+    testingboard4[1,1] = 1
+    testingboard4[1,2] = 6
+    testingboard4[1,3] = 2
+    testingboard4[1,4] = 7
+    testingboard4[1,5] = 4
+    testingboard4[1,6] = 9
+    testingboard4[1,7] = 5
+    testingboard4[1,8] = 3
+    testingboard4[1,9] = 8
+    testingboard4[2,1] = 7
+    testingboard4[2,2] = 4
+    testingboard4[2,3] = 9
+    testingboard4[2,4] = 3
+    testingboard4[2,5] = 5
+    testingboard4[2,6] = 8
+    testingboard4[2,7] = 6
+    testingboard4[2,8] = 1
+    testingboard4[2,9] = 2
+    testingboard4[3,1] = 3
+    testingboard4[3,2] = 5
+    testingboard4[3,3] = 8
+    # testingboard4[3,4] = 4
+    testingboard4[3,5] = 2
+    # testingboard4[3,6] = 6
+    # testingboard4[3,7] = 9
+    testingboard4[4,3] = 4
+    testingboard4[4,9] = 5
+    testingboard4[5,5] = 8
+    testingboard4[5,9] = 7
+    testingboard4[6,1] = 8
+    testingboard4[6,5] = 1
+    testingboard4[7,8] = 5
+    testingboard4[7,9] = 9
+    testingboard4[8,2] = 9
+    testingboard4[8,6] = 1
+    testingboard4[9,3] = 7
+    testingboard4[9,5] = 6
+    hints2::Vector{Tuple{Int, Int}} = [(1,3),(1,8),(2,2),(2,4),(2,7),(3,5),(4,3),(4,9),(5,5),
+                                      (5,9),(6,1),(6,5),(7,8),(7,9),(8,2),(8,6),(9,3),
+                                      (9,5)
+                                      ]
     
-    printboard(testingboard)
+    # printboard(testingboard)
+    printboard(testingboard4)
 
     # False tests
-    println(validacrossboard(testingboard, 1, (7,3))) #should be false (col conflict)
-    println(validacrossboard(testingboard, 4, (6,4))) #should be false (row conflict)
-    println(validacrossboard(testingboard, 3, (2,8))) #should be false (box conflict)
+    # println(validacrossboard(testingboard, 1, (7,3))) # should be false (col conflict)
+    # println(validacrossboard(testingboard, 4, (6,4))) # should be false (row conflict)
+    # println(validacrossboard(testingboard, 3, (2,8))) # should be false (box conflict)
+    # println(validinbox(testingboard, 1, (1,1))) # should be false (box conflict)
+
+    println(determinebox((1,3))) # should be 1
+    println(determinebox((2,7))) # should be 3
+    println(determinebox((5,3))) # should be 4
+    println(determinebox((6,5))) # should be 5
+    println(determinebox((6,8))) # should be 6
+    println(determinebox((8,3))) # should be 7
+    println(determinebox((8,5))) # should be 8
+    println(determinebox((8,8))) # should be 9
+
+    println("")
+    println("Box 2")
+    println(determinebox((3,4))) # should be 2
+    println(determinebox((2,4))) # should be 2
+    println(determinebox((3,5))) # should be 2
+    println(determinebox((1,6))) # should be 2
+    println("")
+
+    # println(validinbox(testingboard4, 4, (3,6))) # should be false (box conflict)
+
+    println("")
+    println("Specific Test")
+    println(validacrossboard(testingboard4, 4, (3,4))) # should be false (box conflict)
+    println(validinbox(testingboard4, 4, (3,4))) # should be false (box conflict)
+    println(validincolumn(testingboard4, 4, (3,4))) # should be true
+    println(validinrow(testingboard4, 4, (3,4))) # should be true
+    println("")
     
     # True tests
-    println(validacrossboard(testingboard, 5, (8,1))) #should be true
-    println(validacrossboard(testingboard, 8, (7,1))) #should be true
-    
+    # println(validacrossboard(testingboard, 5, (8,1))) # should be true
+    # println(validacrossboard(testingboard, 8, (7,1))) # should be true
+    # println(validinbox(testingboard, 2, (1,4)))
 end

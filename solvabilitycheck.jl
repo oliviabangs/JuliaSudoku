@@ -19,11 +19,11 @@ end
 function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hints::Vector{Tuple{Int, Int}}, backtracking::Bool, num_touch::Int)::Array{Int, 2}
     # Keeping track of how many times the recusion happens to catch infinite insolvability loops before they happen
     num_touch += 1
-
+    #printboard(board)
     # Stops once every spot has a value or it appears to be unsolvable
     if every_spot_full(board) || num_touch > 10000
         println(num_touch)
-        printboard(board)
+        #printboard(board)
         return board
     # Handles when the position is not a hint
     elseif !(pos in hints)
@@ -62,7 +62,7 @@ function fill_cell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
         return 100
     end
 
-    validity = validacrossboard(board, value, pos)
+    validity::Bool = validacrossboard(board, value, pos)
     if validity 
         return value
     else
@@ -128,7 +128,7 @@ function solvabilitytests()
     # Board filled with values of 1
     testingboard2 = fill(1, 9, 9)
 
-    # Board w/ only valid hiints
+    # Board w/ only valid hints
     testingboard3 = fill(0, 9, 9)
     testingboard3[1,3] = 2
     testingboard3[1,8] = 3
@@ -153,6 +153,50 @@ function solvabilitytests()
                                       (5,9),(6,1),(6,5),(7,8),(7,9),(8,2),(8,6),(9,3),
                                       (9,5)
                                      ]
+
+    # Partially filled valid board
+    testingboard4 = fill(0, 9, 9)
+    testingboard4[1,1] = 1
+    testingboard4[1,2] = 6
+    testingboard4[1,3] = 2
+    testingboard4[1,4] = 7
+    testingboard4[1,5] = 4
+    testingboard4[1,6] = 9
+    testingboard4[1,7] = 5
+    testingboard4[1,8] = 3
+    testingboard4[1,9] = 8
+    testingboard4[2,1] = 7
+    testingboard4[2,2] = 4
+    testingboard4[2,3] = 9
+    testingboard4[2,4] = 3
+    testingboard4[2,5] = 5
+    testingboard4[2,6] = 8
+    testingboard4[2,7] = 6
+    testingboard4[2,8] = 1
+    testingboard4[2,9] = 2
+    testingboard4[3,1] = 3
+    testingboard4[3,2] = 5
+    testingboard4[3,3] = 8
+    # testingboard4[3,4] = 4
+    testingboard4[3,5] = 2
+    # testingboard4[3,6] = 6
+    # testingboard4[3,7] = 9
+    testingboard4[4,3] = 4
+    testingboard4[4,9] = 5
+    testingboard4[5,5] = 8
+    testingboard4[5,9] = 7
+    testingboard4[6,1] = 8
+    testingboard4[6,5] = 1
+    testingboard4[7,8] = 5
+    testingboard4[7,9] = 9
+    testingboard4[8,2] = 9
+    testingboard4[8,6] = 1
+    testingboard4[9,3] = 7
+    testingboard4[9,5] = 6
+    hints2::Vector{Tuple{Int, Int}} = [(1,3),(1,8),(2,2),(2,4),(2,7),(3,5),(4,3),(4,9),(5,5),
+                                      (5,9),(6,1),(6,5),(7,8),(7,9),(8,2),(8,6),(9,3),
+                                      (9,5)
+                                      ]
     
     # False tests
     # println(check_spot_occupied(3, 3, testingboard)) # Should be false (spot occupied)
@@ -163,8 +207,16 @@ function solvabilitytests()
     # println(every_spot_full(testingboard2)) # Should be true (every cell is not empty)
 
     printboard(testingboard3)
+    # printboard(testingboard4)
     solving_recursive_helper(testingboard3, (1,1), hints, false, 0)
-    #println(fill_cell(testingboard3,1,(1,1)))
+
+    # println(fill_cell(testingboard3, 1, (1,1))) # Should be 1
+    # println(fill_cell(testingboard3, 3, (1,4))) # Should be 4
+    # println(fill_cell(testingboard3, 9, (7,7))) # Should be 100
+    # println(fill_cell(testingboard3, 10, (7,1))) # Should be 100
+    # println(fill_cell(testingboard4, 1, (3,4))) # Should be 1. Not 4!
+    # println(fill_cell(testingboard4, 4, (3,6))) # Should be 6 
+    # println(fill_cell(testingboard4, 9, (3,7))) # Should be 9
 
     # println(move_backwards((9,9), 2)) # Should be (9,7)
     # println(move_backwards((9,1), 1)) # Should be (8,9)
