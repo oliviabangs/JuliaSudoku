@@ -1,3 +1,20 @@
+#include("solvabilitycheck.jl")
+
+function check_spot_occupied(row::Int, col::Int, board_state::Array{Int, 2})::Bool
+    return board_state[row, col] == 0
+end
+
+function every_spot_full(board::Array{Int, 2})::Bool
+    for i in 1:9
+        for j in 1:9
+            if board[i, j] == 0
+                return false
+            end
+        end
+    end
+    return true
+end
+
 #Basic testing function that displays the board
 function printboard(board) 
     println(" -----------------------------")
@@ -30,21 +47,22 @@ function combinedrowcolboxslice(board, position)
 end
 
 #Checks overall validity based on the row, column, and box
+
 function validacrossboard(board, value, sliceposition)
     for elem in combinedrowcolboxslice(board, sliceposition)
         if elem == value 
             return false
         end
     end
-
     return true
 end 
 
 #Checks validity in column
-function validincolumn(board, value, position)
+function validincolumn(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     col = board[:, position[2]]
     for cell in col
         if cell == value
+            #println("Column violation")
             return false
         end
     end
@@ -52,10 +70,11 @@ function validincolumn(board, value, position)
 end
 
 #Checks validity in row
-function validinrow(board, value, position)
+function validinrow(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     row = board[position[1], :]
     for cell in row
         if cell == value
+            #println("Row violation")
             return false
         end
     end
@@ -63,11 +82,12 @@ function validinrow(board, value, position)
 end
 
 #Checks validity in box
-function validinbox(board, value, position)
-    currentbox = determinebox(position)
+function validinbox(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
+    currentbox::Int = determinebox(position)
     box = getboxslice(currentbox, board)
     for cell in box
         if cell == value
+            #println("Box violation")
             return false
         end
     end
@@ -75,7 +95,7 @@ function validinbox(board, value, position)
 end
 
 #Uses ranges to determine what box the position is in
-function determinebox(position)
+function determinebox(position::Tuple{Int, Int})::Int
     #Fist row of boxes
     if position[1] > 0 && position[1] < 4
         #First column of boxes
@@ -109,9 +129,9 @@ function determinebox(position)
     end
 end
 
-#Returns a slice of a box on the board based on the given box number
-function getboxslice(box, board)
-    slice = Dict(
+#Returns a view into a box of the board based on the given box number
+function getboxslice(box::Int, board::Array{Int, 2})
+    coords = Dict(
         1 => board[1:3, 1:3], 
         2 => board[1:3, 4:6], 
         3 => board[1:3, 7:9], 
@@ -156,7 +176,7 @@ function originalcoords(box, slice_index)
 end
 
 #Some informal testing
-function validtests()
+function utilitiestests()
     #Creating a board and inserting values into it (putting the box's number in its bottom right cell)
     testingboard = fill(0, 9, 9)
     testingboard[3, 3] = 1
@@ -169,15 +189,76 @@ function validtests()
     testingboard[9, 6] = 8
     testingboard[9, 9] = 9
 
+
     printboard(testingboard)
+    # Partially filled valid board
+    testingboard4 = fill(0, 9, 9)
+    testingboard4[1,1] = 1
+    testingboard4[1,2] = 6
+    testingboard4[1,3] = 2
+    testingboard4[1,4] = 7
+    testingboard4[1,5] = 4
+    testingboard4[1,6] = 9
+    testingboard4[1,7] = 5
+    testingboard4[1,8] = 3
+    testingboard4[1,9] = 8
+    testingboard4[2,1] = 7
+    testingboard4[2,2] = 4
+    testingboard4[2,3] = 9
+    testingboard4[2,4] = 3
+    testingboard4[2,5] = 5
+    testingboard4[2,6] = 8
+    testingboard4[2,7] = 6
+    testingboard4[2,8] = 1
+    testingboard4[2,9] = 2
+    testingboard4[3,1] = 3
+    testingboard4[3,2] = 5
+    testingboard4[3,3] = 8
+    # testingboard4[3,4] = 4
+    testingboard4[3,5] = 2
+    # testingboard4[3,6] = 6
+    # testingboard4[3,7] = 9
+    testingboard4[4,3] = 4
+    testingboard4[4,9] = 5
+    testingboard4[5,5] = 8
+    testingboard4[5,9] = 7
+    testingboard4[6,1] = 8
+    testingboard4[6,5] = 1
+    testingboard4[7,8] = 5
+    testingboard4[7,9] = 9
+    testingboard4[8,2] = 9
+    testingboard4[8,6] = 1
+    testingboard4[9,3] = 7
+    testingboard4[9,5] = 6
+    hints2::Vector{Tuple{Int, Int}} = [(1,3),(1,8),(2,2),(2,4),(2,7),(3,5),(4,3),(4,9),(5,5),
+                                      (5,9),(6,1),(6,5),(7,8),(7,9),(8,2),(8,6),(9,3),
+                                      (9,5)
+                                      ]
     
-    #False tests
-    println(validacrossboard(testingboard, 1, (7,3))) #should be false (col conflict)
-    println(validacrossboard(testingboard, 4, (6,4))) #should be false (row conflict)
-    println(validacrossboard(testingboard, 3, (2,8))) #should be false (box conflict)
+    # printboard(testingboard)
+    printboard(testingboard4)
+
+    # False tests
+    # println(validacrossboard(testingboard, 1, (7,3))) # should be false (col conflict)
+    # println(validacrossboard(testingboard, 4, (6,4))) # should be false (row conflict)
+    # println(validacrossboard(testingboard, 3, (2,8))) # should be false (box conflict)
+    # println(validinbox(testingboard, 1, (1,1))) # should be false (box conflict)
+    println(validinbox(testingboard4, 4, (3,4))) # should be false (box conflict)
     
-    #True tests
-    println(validacrossboard(testingboard, 5, (8,1))) #should be true
-    println(validacrossboard(testingboard, 8, (7,1))) #should be true
-    
+    # True tests
+    # println(validacrossboard(testingboard, 5, (8,1))) # should be true
+    # println(validacrossboard(testingboard, 8, (7,1))) # should be true
+    # println(validinbox(testingboard, 2, (1,4)))
+    println(validincolumn(testingboard4, 4, (3,4))) # should be true
+    println(validinrow(testingboard4, 4, (3,4))) # should be true
+
+    println(determinebox((1,3))) # should be 1
+    println(determinebox((3,4))) # should be 2
+    println(determinebox((2,7))) # should be 3
+    println(determinebox((5,3))) # should be 4
+    println(determinebox((6,5))) # should be 5
+    println(determinebox((6,8))) # should be 6
+    println(determinebox((8,3))) # should be 7
+    println(determinebox((8,5))) # should be 8
+    println(determinebox((8,8))) # should be 9
 end
