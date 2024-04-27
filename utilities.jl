@@ -35,13 +35,26 @@ function printboard(board)
     end
 end
 
+function combinedrowcolboxslice(board, position)
+    combined = []
+    col = board[:, position[2]]
+    row = board[position[1], :]
+    currentbox = determinebox(position)
+    box = getboxslice(currentbox, board)
+
+    append!(combined, col, row, box)
+    return combined
+end
+
 #Checks overall validity based on the row, column, and box
-function validacrossboard(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
-    if validincolumn(board, value, position) && validinrow(board, value, position) && validinbox(board, value, position)
-        return true
-    else
-        return false
+
+function validacrossboard(board, value, sliceposition)
+    for elem in combinedrowcolboxslice(board, sliceposition)
+        if elem == value 
+            return false
+        end
     end
+    return true
 end 
 
 #Checks validity in column
@@ -127,9 +140,39 @@ function getboxslice(box::Int, board::Array{Int, 2})
         6 => board[4:6, 7:9], 
         7 => board[7:9, 1:3], 
         8 => board[7:9, 4:6], 
-        9 => board[7:9, 7:9])
+        9 => board[7:9, 7:9]
+    )
+
+    return slice[box]
+end
+
+function getcoords(box)
+    coords = Dict(
+        1 => ((1,3), (1,3)), 
+        2 => ((1,3), (4,6)), 
+        3 => ((1,3), (7,9)), 
+        4 => ((4,6), (1,3)), 
+        5 => ((4,6), (4,6)),
+        6 => ((4,6), (7,9)), 
+        7 => ((7,9), (1,3)), 
+        8 => ((7,9), (4,6)), 
+        9 => ((7,9), (7,9))
+    )
 
     return coords[box]
+end
+
+function originalcoords(box, slice_index)
+    coords = getcoords(box)
+    counter = 0
+    for row in coords[1][1]:coords[1][2]
+        for col in coords[2][1]:coords[2][2]
+            counter = counter + 1
+            if counter == slice_index
+                return (row, col)
+            end
+        end
+    end
 end
 
 #Some informal testing
@@ -146,6 +189,8 @@ function utilitiestests()
     testingboard[9, 6] = 8
     testingboard[9, 9] = 9
 
+
+    printboard(testingboard)
     # Partially filled valid board
     testingboard4 = fill(0, 9, 9)
     testingboard4[1,1] = 1
