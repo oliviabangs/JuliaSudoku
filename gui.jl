@@ -43,7 +43,7 @@ function clearboar_button(board)::Button
     return clearBoard
 end
 
-function exit_button()::Button
+function exit_button(window)::Button
     #How the button looks
     exit = Button(Label("Exit Sudoku"))
     set_size_request!(exit,Vector2f(50,100))
@@ -51,12 +51,14 @@ function exit_button()::Button
     set_horizontal_alignment!(exit,ALIGNMENT_END)
     set_vertical_alignment!(exit,ALIGNMENT_START)
 
-    connect_signal_clicked!(clicked_exit, exit)
+    connect_signal_clicked!(clicked_exit, exit,window)
     return exit
 end
 
 function clicked_newBoard(self::Button,board)
     println("New Board Clicked")
+    second_board = generatesolvableclues();
+    
     return nothing
 end
 
@@ -65,9 +67,17 @@ function clicked_clearBoard(self::Button,board)
     return nothing
 end
 
-function clicked_exit(self::Button)
+function clicked_exit(self::Button,window)
     println("Exit Clicked")
-    return nothing
+    close!(window)
+end
+
+function fill_in_gui_board(board)
+    cells = [] # Array where Button objects are temporarily stored before going in the grid
+    for i in 1:length(board)
+        newCell = generate_child(string(board[i]), i) # Creates button object displaying proper value and storing its index
+        push!(cells, newCell)
+    end
 end
 
 # Still haven't figured out how to call this from main.jl
@@ -104,7 +114,7 @@ main() do app::Application
     
     newBoard = newboard_button(rand_board);
     clearBoard = clearboar_button(rand_board);
-    exit = exit_button();
+    exit = exit_button(window);
 
     box = hbox(grid, vbox(newBoard, clearBoard, exit))
 
