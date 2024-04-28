@@ -70,6 +70,7 @@ function validincolumn(board::Array{Int, 2}, value::Int, position::Tuple{Int, In
     for elem in 1:9
         if col[elem] == value
             if elem != position[1]
+                println("not valid in col")
                 return false
             end
         end
@@ -83,6 +84,7 @@ function validinrow(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})
     for elem in 1:9
         if row[elem] == value
             if elem != position[2]
+                println("not valid in row")
                 return false
             end
         end
@@ -101,6 +103,7 @@ function validinbox(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})
         if elem == value
             coords = originalcoords(currentbox, count)
             if coords[1] != position[1] && coords[2] != position[2]
+                println("not valid in box")
                 return false
             end
         end
@@ -123,7 +126,7 @@ function determinebox(position::Tuple{Int, Int})::Int
             return 3
         end
     #Middle row of boxes
-    elseif position[1] > 4 && position[1] < 7
+    elseif position[1] > 3 && position[1] < 7
         if position[2] > 0 && position[2] < 4
             return 4
         elseif position[2] > 3 && position[2] < 7

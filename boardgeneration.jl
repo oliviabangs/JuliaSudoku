@@ -3,12 +3,22 @@ include("solvabilitycheck.jl")
 
 function generatesolvableclues()
     clues = generateeighteen()
-    println(clues)
+    printboard(clues)
+        
     solution = generatesolveboard(clues)
-    println(solution)
+
+    while !everyspotfull(solution) || !boardconfigvalid(solution)
+        clues = generateeighteen()
+        solution = generatesolveboard(clues)
+    end
+
+    printboard(clues)
+    printboard(solution)
+
+    return clues
 end
 
-function generateeighteen()
+function generateeighteen()::Matrix{Int}
     takennums = Dict(1 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0)
     startingclues::Vector{Tuple{Int,Int,Int}} = empty!([(0,0,0)])
     startingboard = fill(0, 9, 9)
@@ -18,12 +28,13 @@ function generateeighteen()
     if boardconfigvalid(board)
         return board
     else
+        printboard(board)
         println("Failed to produce a valid board")
     end
 
 end
 
-function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{Int})
+function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{Int})::Matrix{Int}
     if length(clues) < 18
         boxslice = getboxslice(box, board)
         choosennum = rand(1:9)
@@ -31,6 +42,7 @@ function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{I
         if takennums[choosennum] > 1
             choosennum = rand(1:9)
             while takennums[choosennum] > 1
+                println("stuck in while 1")
                 choosennum = rand(1:9)
             end
         end
@@ -39,6 +51,7 @@ function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{I
         if boxslice[choosenspot] != 0 
             choosenspot = rand(1:9)
             while boxslice[choosenspot] != 0
+                println("stuck in while 2")
                 choosenspot = rand(1:9)
             end
         end

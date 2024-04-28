@@ -1,6 +1,8 @@
 include("utilities.jl")
 
-function generatesolveboard(board::Array{Int, 2})::Array{Int, 2}
+function generatesolveboard(startingboard::Array{Int, 2})::Array{Int, 2}
+    board = copy(startingboard)
+
     # Creates a list of the location of the hints
     hints::Vector{Tuple{Int, Int}} = []
 
@@ -13,17 +15,15 @@ function generatesolveboard(board::Array{Int, 2})::Array{Int, 2}
             end
         end
     end
-    return solvingrecursivehelper(board, (0,0), hints, false, 0)
+    return solvingrecursivehelper(board, (1,1), hints, false, 0)
 end
 
 function solvingrecursivehelper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hints::Vector{Tuple{Int, Int}}, backtracking::Bool, numtouch::Int)::Array{Int, 2}
     # Keeping track of how many times the recusion happens to catch infinite insolvability loops before they happen
     numtouch += 1
-    #printboard(board)
+
     # Stops once every spot has a value or it appears to be unsolvable
     if everyspotfull(board) || numtouch > 10000
-        println(numtouch)
-        printboard(board)
         return board
     # Handles when the position is not a hint
     elseif !(pos in hints)
@@ -42,7 +42,7 @@ function solvingrecursivehelper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hint
         # Backtracking not needed
         else
             # Value update and position moves forward
-            board[pos[1], pos[2]] = current_value
+            board[pos[1], pos[2]] = currentvalue
             return solvingrecursivehelper(board, moveforwards(pos, 1), hints, false, numtouch)
         end
     # Handles if the position is a hint since it can't change the hint
