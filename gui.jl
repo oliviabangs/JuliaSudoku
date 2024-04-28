@@ -1,54 +1,77 @@
 using Mousetrap
+include("boardgeneration.jl")
 
 function newboard_button(board)::Button
+    #How the button looks
     newBoard = Button(Label("New Board"))
     set_size_request!(newBoard,Vector2f(50,100))
+    set_margin!(newBoard,50)
     set_vertical_alignment!(newBoard,ALIGNMENT_CENTER)
     set_horizontal_alignment!(newBoard,ALIGNMENT_START)
-    board = [0,1]
-    connect_signal_clicked!(on_clicked, newBoard, board)
+    
+    #Call to change the board generated
+    board_two = [0,1]
+    
+    connect_signal_clicked!(clicked_newBoard, newBoard, board_two)
     return newBoard
 end
 
+function clearboar_button(board)::Button
+    #How the button looks
+    clearBoard = Button(Label("Clear Board"))
+    set_size_request!(clearBoard,Vector2f(50,100))
+    set_margin!(clearBoard,50)
+    set_vertical_alignment!(clearBoard,ALIGNMENT_CENTER)
+    set_horizontal_alignment!(clearBoard,ALIGNMENT_CENTER)
 
-function on_clicked(self::Button,board)
-    println("board: $board")
+    #Call to remove the changes
+    board_ten = [0,10]
+    connect_signal_clicked!(clicked_clearBoard, clearBoard, board_ten)
+    return clearBoard
+end
+
+function exit_button()::Button
+    #How the button looks
+    exit = Button(Label("Exit"))
+    set_size_request!(exit,Vector2f(50,100))
+    set_margin!(exit,50)
+    set_vertical_alignment!(exit,ALIGNMENT_CENTER)
+    set_horizontal_alignment!(exit,ALIGNMENT_END)
+
+    return exit
+end
+
+function clicked_newBoard(self::Button,board)
+    println("Current board: $board")
+    board[2] += 1
+    println("New board:$board")
+    return nothing
+end
+
+function clicked_clearBoard(self::Button,board)
+    println("Chaneged board:$board")
+    if(board[2] != 0)
+        board[2] -= 1
+    end
+    println("Cleared board:$board")
+    return nothing
 end
 
 main() do app::Application
     window = Window(app)
-
+    
     board = [0,0];
     
     newBoard = newboard_button(board);
-    clearBoard = Button(Label("Clear Board"))
-    exit = Button(Label("Exit"))
+    clearBoard = clearboar_button(board);
+    exit = exit_button();
 
-    connect_signal_clicked!(newBoard,exit) do newBoard::Button, exit::Button
-        println("board: $board")
-        newboard_button(board)
-        set_signal_clicked_blocked!(newBoard,true)
-        emit_signal_clicked(exit)
-        set_signal_clicked_blocked!(newBoard,false)
-
-    end
+    println("The first board: $board")
 
     connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
         println("exit clicked")
-
-        set_signal_clicked_blocked!(exit,true)
-        emit_signal_clicked(newBoard)
-        set_signal_clicked_blocked!(exit,false)
     end
 
-    connect_signal_clicked!(clearBoard,exit) do clearBoard::Button,exit::Button
-        println("clearBoard clicked")
-
-        set_signal_clicked_blocked!(clearBoard,true)
-        emit_signal_clicked(exit)
-        set_signal_clicked_blocked!(clearBoard,false)
-
-    end
 
     set_child!(window, hbox(newBoard,exit,clearBoard))
     present!(window)
