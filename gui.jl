@@ -1,4 +1,5 @@
 using Mousetrap
+# include("boardgeneration.jl")
 
 function generate_child(label::String, index)::Button
     
@@ -14,41 +15,7 @@ function on_clicked(self::Button, data)
     println("value: $(data[1]), index: $(data[2])")
 end
 
-# Still haven't figured out how to call this from main.jl
-# Have to run julia gui.jl to launch gui for now
-main() do app::Application
 
-    window = Window(app) 
-
-    grid = Grid() # Declaring grid where Button objects will eventually be pushed into
-
-    rand_board = rand(1:9, 9, 9) # Using a random board for now
-    display(rand_board) # Showing it in terminal to compare against GUI
-
-    cells = [] # Array where Button objects are temporarily stored before going in the grid
-    for i in 1:length(rand_board)
-        newCell = generate_child(string(rand_board[i]), i) # Creates button object displaying proper value and storing its index
-        push!(cells, newCell)
-    end
-    
-    row = 1
-    column = 1
-
-    for index in 1:length(cells)
-        Mousetrap.insert_at!(grid, cells[index], column, row, 1, 1) # Inserts cell from cells array into grid at given col and row position with relative size 1,1
-        
-        # Funny math to properly align cells
-        row += 1
-        if index % 9 == 0
-            row = 1
-            column += 1
-        end
-    end
-    
-    set_child!(window, grid)
-    present!(window)
-endusing Mousetrap
-include("boardgeneration.jl")
 
 function newboard_button(board)::Button
     #How the button looks
@@ -106,8 +73,59 @@ function clicked_clearBoard(self::Button,board)
     return nothing
 end
 
+# main() do app::Application
+#     window = Window(app)
+    
+#     board = [0,0];
+    
+#     newBoard = newboard_button(board);
+#     clearBoard = clearboar_button(board);
+#     exit = exit_button();
+
+#     println("The first board: $board")
+
+#     connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
+#         println("exit clicked")
+#     end
+
+
+#     set_child!(window, hbox(newBoard,exit,clearBoard))
+#     present!(window)
+# end
+
+# Still haven't figured out how to call this from main.jl
+# Have to run julia gui.jl to launch gui for now
 main() do app::Application
-    window = Window(app)
+
+    window = Window(app) 
+
+    grid = Grid() # Declaring grid where Button objects will eventually be pushed into
+
+    rand_board = rand(1:9, 9, 9) # Using a random board for now
+    display(rand_board) # Showing it in terminal to compare against GUI
+
+    cells = [] # Array where Button objects are temporarily stored before going in the grid
+    for i in 1:length(rand_board)
+        newCell = generate_child(string(rand_board[i]), i) # Creates button object displaying proper value and storing its index
+        push!(cells, newCell)
+    end
+    
+    row = 1
+    column = 1
+
+    for index in 1:length(cells)
+        Mousetrap.insert_at!(grid, cells[index], column, row, 1, 1) # Inserts cell from cells array into grid at given col and row position with relative size 1,1
+        
+        # Funny math to properly align cells
+        row += 1
+        if index % 9 == 0
+            row = 1
+            column += 1
+        end
+    end
+
+
+    # window = Window(app)
     
     board = [0,0];
     
@@ -121,7 +139,12 @@ main() do app::Application
         println("exit clicked")
     end
 
+    box = hbox(grid, newBoard, exit, clearBoard)
 
-    set_child!(window, hbox(newBoard,exit,clearBoard))
+        
+    set_child!(window, box)
+    # set_child!(window, hbox(newBoard,exit,clearBoard))
     present!(window)
+
+    # present!(window)
 end
