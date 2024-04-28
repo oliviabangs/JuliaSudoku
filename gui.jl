@@ -1,5 +1,6 @@
 using Mousetrap
-# include("boardgeneration.jl")
+include("boardgeneration.jl")
+
 
 function generate_child(label::String, index)::Button
     
@@ -21,14 +22,11 @@ function newboard_button(board)::Button
     #How the button looks
     newBoard = Button(Label("New Board"))
     set_size_request!(newBoard,Vector2f(50,100))
-    set_margin!(newBoard,50)
-    set_vertical_alignment!(newBoard,ALIGNMENT_CENTER)
-    set_horizontal_alignment!(newBoard,ALIGNMENT_START)
+    set_margin!(newBoard,10)
+    set_vertical_alignment!(newBoard,ALIGNMENT_START)
+    set_horizontal_alignment!(newBoard,ALIGNMENT_END)
     
-    #Call to change the board generated
-    board_two = [0,1]
-    
-    connect_signal_clicked!(clicked_newBoard, newBoard, board_two)
+    connect_signal_clicked!(clicked_newBoard, newBoard, board)
     return newBoard
 end
 
@@ -36,62 +34,41 @@ function clearboar_button(board)::Button
     #How the button looks
     clearBoard = Button(Label("Clear Board"))
     set_size_request!(clearBoard,Vector2f(50,100))
-    set_margin!(clearBoard,50)
-    set_vertical_alignment!(clearBoard,ALIGNMENT_CENTER)
-    set_horizontal_alignment!(clearBoard,ALIGNMENT_CENTER)
+    set_margin!(clearBoard,10)
+    set_vertical_alignment!(clearBoard,ALIGNMENT_END)
+    set_horizontal_alignment!(clearBoard,ALIGNMENT_START)
 
     #Call to remove the changes
-    board_ten = [0,10]
-    connect_signal_clicked!(clicked_clearBoard, clearBoard, board_ten)
+    connect_signal_clicked!(clicked_clearBoard, clearBoard, board)
     return clearBoard
 end
 
 function exit_button()::Button
     #How the button looks
-    exit = Button(Label("Exit"))
+    exit = Button(Label("Exit Sudoku"))
     set_size_request!(exit,Vector2f(50,100))
-    set_margin!(exit,50)
-    set_vertical_alignment!(exit,ALIGNMENT_CENTER)
+    set_margin!(exit,10)
     set_horizontal_alignment!(exit,ALIGNMENT_END)
+    set_vertical_alignment!(exit,ALIGNMENT_START)
 
+    connect_signal_clicked!(clicked_exit, exit)
     return exit
 end
 
 function clicked_newBoard(self::Button,board)
-    println("Current board: $board")
-    board[2] += 1
-    println("New board:$board")
+    println("New Board Clicked")
     return nothing
 end
 
 function clicked_clearBoard(self::Button,board)
-    println("Chaneged board:$board")
-    if(board[2] != 0)
-        board[2] -= 1
-    end
-    println("Cleared board:$board")
+    println("Clear Board Clicked")
     return nothing
 end
 
-# main() do app::Application
-#     window = Window(app)
-    
-#     board = [0,0];
-    
-#     newBoard = newboard_button(board);
-#     clearBoard = clearboar_button(board);
-#     exit = exit_button();
-
-#     println("The first board: $board")
-
-#     connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
-#         println("exit clicked")
-#     end
-
-
-#     set_child!(window, hbox(newBoard,exit,clearBoard))
-#     present!(window)
-# end
+function clicked_exit(self::Button)
+    println("Exit Clicked")
+    return nothing
+end
 
 # Still haven't figured out how to call this from main.jl
 # Have to run julia gui.jl to launch gui for now
@@ -101,7 +78,7 @@ main() do app::Application
 
     grid = Grid() # Declaring grid where Button objects will eventually be pushed into
 
-    rand_board = rand(1:9, 9, 9) # Using a random board for now
+    rand_board = generatesolvableclues() # Using a random board for now
     display(rand_board) # Showing it in terminal to compare against GUI
 
     cells = [] # Array where Button objects are temporarily stored before going in the grid
@@ -124,27 +101,14 @@ main() do app::Application
         end
     end
 
-
-    # window = Window(app)
     
-    board = [0,0];
-    
-    newBoard = newboard_button(board);
-    clearBoard = clearboar_button(board);
+    newBoard = newboard_button(rand_board);
+    clearBoard = clearboar_button(rand_board);
     exit = exit_button();
 
-    println("The first board: $board")
-
-    connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
-        println("exit clicked")
-    end
-
-    box = hbox(grid, newBoard, exit, clearBoard)
+    box = hbox(grid, vbox(newBoard, clearBoard, exit))
 
         
     set_child!(window, box)
-    # set_child!(window, hbox(newBoard,exit,clearBoard))
     present!(window)
-
-    # present!(window)
 end
