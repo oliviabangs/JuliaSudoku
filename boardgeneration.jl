@@ -1,15 +1,19 @@
 include("utilities.jl")
+include("solvabilitycheck.jl")
+
+function generate_solvable_clues()
+
+end
 
 function generateeighteen()
     takennums = Dict(1 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0)
-    startingclues::Vector{Tuple{Int64,Int64,Int64}} = empty!([(0,0,0)])
+    startingclues::Vector{Tuple{Int,Int,Int}} = empty!([(0,0,0)])
     startingboard = fill(0, 9, 9)
 
-    board = placevalue(1, takennums, startingclues, startingboard)
+    board = placevalues(1, takennums, startingclues, startingboard)
 end
 
-#its overwritting
-function placevalue(box::Int64, takennums::Dict{Int64, Int64}, clues, board::Matrix{Int64})
+function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{Int})
     if length(clues) < 18
         boxslice = getboxslice(box, board)
         choosennum = rand(1:9)

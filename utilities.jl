@@ -1,4 +1,3 @@
-#include("solvabilitycheck.jl")
 
 function check_spot_occupied(row::Int, col::Int, board_state::Array{Int, 2})::Bool
     return board_state[row, col] == 0
@@ -16,7 +15,7 @@ function every_spot_full(board::Array{Int, 2})::Bool
 end
 
 #Basic testing function that displays the board
-function printboard(board) 
+function printboard(board::Array{Int, 2}) 
     println(" -----------------------------")
     for row in 1:9
         print("|")
@@ -35,7 +34,7 @@ function printboard(board)
     end
 end
 
-function combinedrowcolboxslice(board, position)
+function combinedrowcolboxslice(board::Array{Int, 2}, position::Tuple{Int, Int})
     combined = []
     col = board[:, position[2]]
     row = board[position[1], :]
@@ -47,8 +46,7 @@ function combinedrowcolboxslice(board, position)
 end
 
 #Checks overall validity based on the row, column, and box
-
-function validacrossboard(board, value, sliceposition)
+function validacrossboard(board::Array{Int, 2}, value::Int, sliceposition::Tuple{Int, Int})::Bool
     for elem in combinedrowcolboxslice(board, sliceposition)
         if elem == value 
             return false
@@ -130,8 +128,8 @@ function determinebox(position::Tuple{Int, Int})::Int
 end
 
 #Returns a view into a box of the board based on the given box number
-function getboxslice(box::Int, board::Array{Int, 2})
-    coords = Dict(
+function getboxslice(box::Int, board::Array{Int, 2})::Array{Int}
+    slice = Dict(
         1 => board[1:3, 1:3], 
         2 => board[1:3, 4:6], 
         3 => board[1:3, 7:9], 
@@ -146,7 +144,7 @@ function getboxslice(box::Int, board::Array{Int, 2})
     return slice[box]
 end
 
-function getcoords(box)
+function getcoords(box::Int)::Tuple{Tuple{Int, Int}, Tuple{Int, Int}}
     coords = Dict(
         1 => ((1,3), (1,3)), 
         2 => ((1,3), (4,6)), 
@@ -162,13 +160,13 @@ function getcoords(box)
     return coords[box]
 end
 
-function originalcoords(box, slice_index)
+function originalcoords(box::Int, sliceindex::Int)::Tuple{Int, Int}
     coords = getcoords(box)
     counter = 0
     for row in coords[1][1]:coords[1][2]
         for col in coords[2][1]:coords[2][2]
             counter = counter + 1
-            if counter == slice_index
+            if counter == sliceindex
                 return (row, col)
             end
         end
