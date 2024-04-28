@@ -1,3 +1,4 @@
+
 include("utilities.jl")
 include("solvabilitycheck.jl")
 
@@ -31,27 +32,12 @@ function generateeighteen()::Matrix{Int}
 end
 
 function placevalues(box::Int, takennums::Dict{Int, Int}, clues::Vector{Tuple{Int,Int,Int}}, board::Matrix{Int})::Matrix{Int}
+
     if length(clues) < 18
         boxslice = getboxslice(box, board)
         choosennum = rand(1:9)
 
         if takennums[choosennum] > 1
-            if numberofoptionsremainingforbox(board, takennums, box) < 2 
-                removedclue = pop!(clues)
-                removedvalue = removedclue[3]
-                board[removedclue[1], removedclue[2]] = 0
-                takennums[removedvalue] = takennums[removedvalue] - 1
-
-                if box == 1
-                    return placevalues(9, takennums, clues, board)
-                else
-                    return placevalues(box - 1, takennums, clues, board)
-                end
-            else
-                choosennum = rand(1:9)
-                while takennums[choosennum] > 1
-                    choosennum = rand(1:9)
-                end
             end
         end
 
@@ -68,6 +54,7 @@ function placevalues(box::Int, takennums::Dict{Int, Int}, clues::Vector{Tuple{In
         if validacrossboard(board, choosennum, coordsinboard) && board[coordsinboard[1], coordsinboard[2]] == 0
             board[coordsinboard[1], coordsinboard[2]] = choosennum
             takennums[choosennum] = takennums[choosennum] + 1
+
             push!(clues, (coordsinboard[1], coordsinboard[2], choosennum))
 
             if box == 9
