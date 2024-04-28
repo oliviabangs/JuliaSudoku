@@ -5,14 +5,14 @@ function newboard_button(board)::Button
     set_size_request!(newBoard,Vector2f(50,100))
     set_vertical_alignment!(newBoard,ALIGNMENT_CENTER)
     set_horizontal_alignment!(newBoard,ALIGNMENT_START)
-    board = []
+    board = [0,1]
     connect_signal_clicked!(on_clicked, newBoard, board)
     return newBoard
 end
 
 
 function on_clicked(self::Button,board)
-    println("board:" $board)
+    println("board: $board")
 end
 
 main() do app::Application
@@ -25,8 +25,8 @@ main() do app::Application
     exit = Button(Label("Exit"))
 
     connect_signal_clicked!(newBoard,exit) do newBoard::Button, exit::Button
-        println("newBoard clicked")
-
+        println("board: $board")
+        newboard_button(board)
         set_signal_clicked_blocked!(newBoard,true)
         emit_signal_clicked(exit)
         set_signal_clicked_blocked!(newBoard,false)
@@ -41,11 +41,11 @@ main() do app::Application
         set_signal_clicked_blocked!(exit,false)
     end
 
-    connect_signal_clicked!(clearBoard,newBoard) do clearBoard::Button,newBoard::Button
+    connect_signal_clicked!(clearBoard,exit) do clearBoard::Button,exit::Button
         println("clearBoard clicked")
 
         set_signal_clicked_blocked!(clearBoard,true)
-        emit_signal_clicked(newBoard)
+        emit_signal_clicked(exit)
         set_signal_clicked_blocked!(clearBoard,false)
 
     end
