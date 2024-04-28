@@ -1,7 +1,7 @@
 include("utilities.jl")
 include("solvabilitycheck.jl")
 
-function generate_solvable_clues()
+function generatesolvableclues()
 
 end
 

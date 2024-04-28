@@ -1,6 +1,6 @@
 include("utilities.jl")
 
-function generate_solve_board(board::Array{Int, 2})::Array{Int, 2}
+function generatesolveboard(board::Array{Int, 2})::Array{Int, 2}
     # Creates a list of the location of the hints
     hints::Vector{Tuple{Int, Int}} = []
 
@@ -13,16 +13,16 @@ function generate_solve_board(board::Array{Int, 2})::Array{Int, 2}
             end
         end
     end
-    return solving_recursive_helper(board, (0,0), hints, false, 0)
+    return solvingrecursivehelper(board, (0,0), hints, false, 0)
 end
 
-function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hints::Vector{Tuple{Int, Int}}, backtracking::Bool, num_touch::Int)::Array{Int, 2}
+function solvingrecursivehelper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hints::Vector{Tuple{Int, Int}}, backtracking::Bool, numtouch::Int)::Array{Int, 2}
     # Keeping track of how many times the recusion happens to catch infinite insolvability loops before they happen
-    num_touch += 1
+    numtouch += 1
     #printboard(board)
     # Stops once every spot has a value or it appears to be unsolvable
-    if every_spot_full(board) || num_touch > 10000
-        println(num_touch)
+    if everyspotfull(board) || numtouch > 10000
+        println(numtouch)
         printboard(board)
         return board
     # Handles when the position is not a hint
@@ -31,33 +31,33 @@ function solving_recursive_helper(board::Array{Int, 2}, pos::Tuple{Int, Int}, hi
         value::Int = board[pos[1], pos[2]] + 1
 
         # Checks whether that value or another is possible
-        current_value::Int = fill_cell(board, value, pos)
+        currentvalue::Int = fillcell(board, value, pos)
 
         # Indicates that backtracking is needed
-        if current_value == 100
+        if currentvalue == 100
             # Negates what was at that position and moves backwared
             board[pos[1], pos[2]] = 0
-            return solving_recursive_helper(board, move_backwards(pos, 1), hints, true, num_touch)
+            return solvingrecursivehelper(board, movebackwards(pos, 1), hints, true, numtouch)
 
         # Backtracking not needed
         else
             # Value update and position moves forward
             board[pos[1], pos[2]] = current_value
-            return solving_recursive_helper(board, move_forwards(pos, 1), hints, false, num_touch)
+            return solvingrecursivehelper(board, moveforwards(pos, 1), hints, false, numtouch)
         end
     # Handles if the position is a hint since it can't change the hint
     else
         # Moves back past the hint if its in backtracking mode
         if backtracking
-            return solving_recursive_helper(board, move_backwards(pos, 1), hints, true, num_touch)
+            return solvingrecursivehelper(board, movebackwards(pos, 1), hints, true, numtouch)
          # Moves forward past the hint
         else
-            return solving_recursive_helper(board, move_forwards(pos, 1), hints, false, num_touch)
+            return solvingrecursivehelper(board, moveforwards(pos, 1), hints, false, numtouch)
         end
     end
 end
 
-function fill_cell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
+function fillcell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
     if value > 9
         return 100
     end
@@ -69,46 +69,46 @@ function fill_cell(board::Array{Int, 2}, value::Int, pos::Tuple{Int, Int})::Int
         if value == 9
             return 100
         else
-            return fill_cell(board, value + 1, pos)
+            return fillcell(board, value + 1, pos)
         end
     end
 end
 
-function move_backwards(pos::Tuple{Int, Int}, number_of_times::Int)::Tuple{Int, Int}
+function movebackwards(pos::Tuple{Int, Int}, numberoftimes::Int)::Tuple{Int, Int}
     # First digit in tuple is row
     if pos == (1, 1)
         return (1, 1)
     end
 
-    new_row, new_col = pos 
+    newrow, newcol = pos 
 
-    for _ in 1:number_of_times
-        if new_col == 1
-            new_col = 9
-            new_row -= 1
+    for _ in 1:numberoftimes
+        if newcol == 1
+            newcol = 9
+            newrow -= 1
         else
-            new_col -= 1
+            newcol -= 1
         end
     end
-    return (new_row, new_col)
+    return (newrow, newcol)
 end
 
-function move_forwards(pos::Tuple{Int, Int}, number_of_times::Int)::Tuple{Int, Int}
+function moveforwards(pos::Tuple{Int, Int}, numberoftimes::Int)::Tuple{Int, Int}
     if pos == (9, 9)
         return (9, 9)
     end
 
-    new_row, new_col = pos 
+    newrow, newcol = pos 
 
-    for _ in 1:number_of_times
-        if new_col + 1 > 9
-            new_col = 1
-            new_row += 1
+    for _ in 1:numberoftimes
+        if newcol + 1 > 9
+            newcol = 1
+            newrow += 1
         else
-            new_col += 1
+            newcol += 1
         end
     end
-    return (new_row, new_col)
+    return (newrow, newcol)
 end
 
 #Some informal testing
@@ -199,31 +199,31 @@ function solvabilitytests()
                                       ]
     
     # False tests
-    # println(check_spot_occupied(3, 3, testingboard)) # Should be false (spot occupied)
-    # println(every_spot_full(testingboard)) # Should be false (not every spot is not empty)
+    # println(checkspotoccupied(3, 3, testingboard)) # Should be false (spot occupied)
+    # println(everyspotfull(testingboard)) # Should be false (not every spot is not empty)
     
     # True tests
-    # println(check_spot_occupied(3, 2, testingboard)) # Should be true (spot not occupied)
-    # println(every_spot_full(testingboard2)) # Should be true (every cell is not empty)
+    # println(checkspotoccupied(3, 2, testingboard)) # Should be true (spot not occupied)
+    # println(everyspotfull(testingboard2)) # Should be true (every cell is not empty)
 
     printboard(testingboard3)
     # printboard(testingboard4)
-    solving_recursive_helper(testingboard3, (1,1), hints, false, 0)
+    solvingrecursivehelper(testingboard3, (1,1), hints, false, 0)
 
-    # println(fill_cell(testingboard3, 1, (1,1))) # Should be 1
-    # println(fill_cell(testingboard3, 3, (1,4))) # Should be 4
-    # println(fill_cell(testingboard3, 9, (7,7))) # Should be 100
-    # println(fill_cell(testingboard3, 10, (7,1))) # Should be 100
-    # println(fill_cell(testingboard4, 1, (3,4))) # Should be 1. Not 4!
-    # println(fill_cell(testingboard4, 4, (3,6))) # Should be 6 
-    # println(fill_cell(testingboard4, 9, (3,7))) # Should be 9
+    # println(fillcell(testingboard3, 1, (1,1))) # Should be 1
+    # println(fillcell(testingboard3, 3, (1,4))) # Should be 4
+    # println(fillcell(testingboard3, 9, (7,7))) # Should be 100
+    # println(fillcell(testingboard3, 10, (7,1))) # Should be 100
+    # println(fillcell(testingboard4, 1, (3,4))) # Should be 1. Not 4!
+    # println(fillcell(testingboard4, 4, (3,6))) # Should be 6 
+    # println(fillcell(testingboard4, 9, (3,7))) # Should be 9
 
-    # println(move_backwards((9,9), 2)) # Should be (9,7)
-    # println(move_backwards((9,1), 1)) # Should be (8,9)
-    # println(move_backwards((1,1), 2)) # Should be (1,1)
+    # println(movebackwards((9,9), 2)) # Should be (9,7)
+    # println(movebackwards((9,1), 1)) # Should be (8,9)
+    # println(movebackwards((1,1), 2)) # Should be (1,1)
 
-    # println(move_forwards((9,9), 1)) # Should be (9,9)
-    # println(move_forwards((8,9), 1)) # Should be (9,1)
-    # println(move_forwards((9,7), 2)) # Should be (9,9)
+    # println(moveforwards((9,9), 1)) # Should be (9,9)
+    # println(moveforwards((8,9), 1)) # Should be (9,1)
+    # println(moveforwards((9,7), 2)) # Should be (9,9)
     
 end

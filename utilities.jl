@@ -1,9 +1,9 @@
 
-function check_spot_occupied(row::Int, col::Int, board_state::Array{Int, 2})::Bool
-    return board_state[row, col] == 0
+function checkspotoccupied(row::Int, col::Int, boardstate::Array{Int, 2})::Bool
+    return boardstate[row, col] == 0
 end
 
-function every_spot_full(board::Array{Int, 2})::Bool
+function everyspotsfull(board::Array{Int, 2})::Bool
     for i in 1:9
         for j in 1:9
             if board[i, j] == 0
