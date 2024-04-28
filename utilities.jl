@@ -1,9 +1,18 @@
-
-function checkspotoccupied(row::Int, col::Int, boardstate::Array{Int, 2})::Bool
-    return boardstate[row, col] == 0
+function boardconfigvalid(board::Array{Int, 2})::Bool
+    for row in 1:9
+        for col in 1:9
+            if board[row, col] != 0
+                if !validincolumn(board, board[row, col], (row, col)) || !validinrow(board, board[row, col], (row, col)) || !validinbox(board, board[row, col], (row, col))
+                    println(row, ", ", col)
+                    return false
+                end
+            end
+        end
+    end
+    return true
 end
 
-function everyspotsfull(board::Array{Int, 2})::Bool
+function everyspotfull(board::Array{Int, 2})::Bool
     for i in 1:9
         for j in 1:9
             if board[i, j] == 0
@@ -58,10 +67,11 @@ end
 #Checks validity in column
 function validincolumn(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     col = board[:, position[2]]
-    for cell in col
-        if cell == value
-            #println("Column violation")
-            return false
+    for elem in 1:9
+        if col[elem] == value
+            if elem != position[1]
+                return false
+            end
         end
     end
     return true
@@ -70,10 +80,11 @@ end
 #Checks validity in row
 function validinrow(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
     row = board[position[1], :]
-    for cell in row
-        if cell == value
-            #println("Row violation")
-            return false
+    for elem in 1:9
+        if row[elem] == value
+            if elem != position[2]
+                return false
+            end
         end
     end
     return true
@@ -81,12 +92,17 @@ end
 
 #Checks validity in box
 function validinbox(board::Array{Int, 2}, value::Int, position::Tuple{Int, Int})::Bool
-    currentbox::Int = determinebox(position)
+    currentbox = determinebox(position)
     box = getboxslice(currentbox, board)
-    for cell in box
-        if cell == value
-            #println("Box violation")
-            return false
+
+    count = 0
+    for elem in box
+        count = count + 1
+        if elem == value
+            coords = originalcoords(currentbox, count)
+            if coords[1] != position[1] && coords[2] != position[2]
+                return false
+            end
         end
     end
     return true
@@ -128,7 +144,7 @@ function determinebox(position::Tuple{Int, Int})::Int
 end
 
 #Returns a view into a box of the board based on the given box number
-function getboxslice(box::Int, board::Array{Int, 2})::Array{Int}
+function getboxslice(box::Int, board::Array{Int, 2})
     slice = Dict(
         1 => board[1:3, 1:3], 
         2 => board[1:3, 4:6], 
@@ -141,7 +157,8 @@ function getboxslice(box::Int, board::Array{Int, 2})::Array{Int}
         9 => board[7:9, 7:9]
     )
 
-    return slice[box]
+    boxslice = slice[box]
+    return boxslice'
 end
 
 function getcoords(box::Int)::Tuple{Tuple{Int, Int}, Tuple{Int, Int}}
@@ -162,12 +179,14 @@ end
 
 function originalcoords(box::Int, sliceindex::Int)::Tuple{Int, Int}
     coords = getcoords(box)
+    row = coords[1]
+    col = coords[2]
     counter = 0
-    for row in coords[1][1]:coords[1][2]
-        for col in coords[2][1]:coords[2][2]
+    for r in row[1]:row[2]
+        for c in col[1]:col[2]
             counter = counter + 1
             if counter == sliceindex
-                return (row, col)
+                return (r, c)
             end
         end
     end

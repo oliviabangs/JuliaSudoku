@@ -2,7 +2,10 @@ include("utilities.jl")
 include("solvabilitycheck.jl")
 
 function generatesolvableclues()
-
+    clues = generateeighteen()
+    println(clues)
+    solution = generatesolveboard(clues)
+    println(solution)
 end
 
 function generateeighteen()
@@ -11,6 +14,13 @@ function generateeighteen()
     startingboard = fill(0, 9, 9)
 
     board = placevalues(1, takennums, startingclues, startingboard)
+
+    if boardconfigvalid(board)
+        return board
+    else
+        println("Failed to produce a valid board")
+    end
+
 end
 
 function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{Int})
@@ -41,15 +51,13 @@ function placevalues(box::Int, takennums::Dict{Int, Int}, clues, board::Matrix{I
             
             push!(clues, (coordsinboard[1], coordsinboard[2], choosennum))
             if box == 9
-                printboard(board) 
-                placevalue(1, takennums, clues, board)
+                placevalues(1, takennums, clues, board)
             else
-                printboard(board)
-                placevalue(box + 1, takennums, clues, board)
+                placevalues(box + 1, takennums, clues, board)
             end
                 
         else
-            placevalue(box, takennums, clues, board)
+            placevalues(box, takennums, clues, board)
         end
     end 
     board
