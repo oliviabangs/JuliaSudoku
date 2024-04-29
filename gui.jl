@@ -25,8 +25,7 @@ function newboard_button(board)::Button
     set_margin!(newBoard,10)
     set_vertical_alignment!(newBoard,ALIGNMENT_START)
     set_horizontal_alignment!(newBoard,ALIGNMENT_END)
-    
-    connect_signal_clicked!(clicked_newBoard, newBoard, board)
+    connect_signal_clicked!(clicked_newBoard, newBoard,board)
     return newBoard
 end
 
@@ -37,9 +36,7 @@ function clearboar_button(board)::Button
     set_margin!(clearBoard,10)
     set_vertical_alignment!(clearBoard,ALIGNMENT_END)
     set_horizontal_alignment!(clearBoard,ALIGNMENT_START)
-
-    #Call to remove the changes
-    connect_signal_clicked!(clicked_clearBoard, clearBoard, board)
+    connect_signal_clicked!(clicked_clearBoard, clearBoard,board)
     return clearBoard
 end
 
@@ -50,7 +47,6 @@ function exit_button(window)::Button
     set_margin!(exit,10)
     set_horizontal_alignment!(exit,ALIGNMENT_END)
     set_vertical_alignment!(exit,ALIGNMENT_START)
-
     connect_signal_clicked!(clicked_exit, exit,window)
     return exit
 end
@@ -58,7 +54,7 @@ end
 function clicked_newBoard(self::Button,board)
     println("New Board Clicked")
     second_board = generatesolvableclues();
-    
+    newboard = generate_board(second_board);
     return nothing
 end
 
@@ -70,33 +66,17 @@ end
 function clicked_exit(self::Button,window)
     println("Exit Clicked")
     close!(window)
+    return nothing
 end
 
-function fill_in_gui_board(board)
-    cells = [] # Array where Button objects are temporarily stored before going in the grid
-    for i in 1:length(board)
-        newCell = generate_child(string(board[i]), i) # Creates button object displaying proper value and storing its index
-        push!(cells, newCell)
-    end
-end
-
-# Still haven't figured out how to call this from main.jl
-# Have to run julia gui.jl to launch gui for now
-main() do app::Application
-
-    window = Window(app) 
-
+function generate_board(board::Matrix{Int}):: Grid
     grid = Grid() # Declaring grid where Button objects will eventually be pushed into
 
-    rand_board = generatesolvableclues() # Using a random board for now
-    display(rand_board) # Showing it in terminal to compare against GUI
-
-    cells = [] # Array where Button objects are temporarily stored before going in the grid
-    for i in 1:length(rand_board)
-        newCell = generate_child(string(rand_board[i]), i) # Creates button object displaying proper value and storing its index
-        push!(cells, newCell)
-    end
     
+    display(board) # Showing it in terminal to compare against GUI
+
+    cells = fill_in_gui_board(board)
+
     row = 1
     column = 1
 
@@ -110,6 +90,29 @@ main() do app::Application
             column += 1
         end
     end
+
+    return grid;
+end
+
+
+function fill_in_gui_board(board)::Array
+    cells = [] # Array where Button objects are temporarily stored before going in the grid
+    for i in 1:length(board)
+        newCell = generate_child(string(board[i]), i) # Creates button object displaying proper value and storing its index
+        push!(cells, newCell)
+    end
+    return cells
+end
+
+
+
+# Still haven't figured out how to call this from main.jl
+# Have to run julia gui.jl to launch gui for now
+main() do app::Application
+
+    window = Window(app) 
+    rand_board = generatesolvableclues() # Using a random board for now
+    grid = generate_board(rand_board);
 
     
     newBoard = newboard_button(rand_board);
