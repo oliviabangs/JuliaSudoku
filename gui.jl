@@ -62,8 +62,6 @@ end
 function clicked_clearBoard(self::Button,board)
     println("Clear Board Clicked")
     global boardUpdate = false
-    second_board = generatesolvableclues()
-    new_board = generate_board(second_board)
     return nothing
 end
 
@@ -151,6 +149,6 @@ end
 # Have to run julia gui.jl to launch gui for now
 main() do app::Application
     window = Window(app) 
-    set_child!(window,generate_window(window))
+    generate_window(window)
     present!(window)
 end
