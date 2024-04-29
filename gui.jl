@@ -1,7 +1,7 @@
 using Mousetrap
 include("boardgeneration.jl")
 
-
+boardUpdate = false;
 function generate_child(label::String, index)::Button
     
     button = Button(Label(label))
@@ -29,7 +29,7 @@ function newboard_button(board)::Button
     return newBoard
 end
 
-function clearboar_button(board)::Button
+function clearboard_button(board)::Button
     #How the button looks
     clearBoard = Button(Label("Clear Board"))
     set_size_request!(clearBoard,Vector2f(50,100))
@@ -53,13 +53,17 @@ end
 
 function clicked_newBoard(self::Button,board)
     println("New Board Clicked")
-    second_board = generatesolvableclues();
-    newboard = generate_board(second_board);
+    global boardUpdate = true
+    second_board = generatesolvableclues()
+    new_board = generate_board(second_board)
     return nothing
 end
 
 function clicked_clearBoard(self::Button,board)
     println("Clear Board Clicked")
+    global boardUpdate = false
+    second_board = generatesolvableclues()
+    new_board = generate_board(second_board)
     return nothing
 end
 
@@ -69,10 +73,8 @@ function clicked_exit(self::Button,window)
     return nothing
 end
 
-function generate_board(board::Matrix{Int}):: Grid
+function generate_board(board::Matrix{Int})::Grid
     grid = Grid() # Declaring grid where Button objects will eventually be pushed into
-
-    
     display(board) # Showing it in terminal to compare against GUI
 
     cells = fill_in_gui_board(board)
@@ -91,7 +93,8 @@ function generate_board(board::Matrix{Int}):: Grid
         end
     end
 
-    return grid;
+    return grid
+    
 end
 
 
@@ -104,24 +107,50 @@ function fill_in_gui_board(board)::Array
     return cells
 end
 
+function set_box(grid::Grid,newBoard:: Button,clearBoard:: Button, exit:: Button):: Box
+    box = hbox(grid,vbox(newBoard,clearBoard,exit))
+    return box
+end
 
+
+function generate_orignial_window(window,rand_board)::Box
+    rand_board = generatesolvableclues() # Using a random board for now
+    grid = generate_board(rand_board);
+
+    newBoard = newboard_button(rand_board);
+    clearBoard = clearboard_button(rand_board);    
+    exit = exit_button(window);
+    box = set_box(grid,newBoard,clearBoard,exit)
+    return box
+end
+
+function update_board_window(window)::Box
+    rand_board = generatesolvableclues() # Using a random board for now
+    grid = generate_board(rand_board);
+
+    newBoard = newboard_button(rand_board);
+    clearBoard = clearboard_button(rand_board);    
+    exit = exit_button(window);
+    box = set_box(grid,newBoard,clearBoard,exit)
+    return box
+end
+
+function generate_window(window::Window)::Window 
+    board_01 = generatesolvableclues()
+    if(boardUpdate == false)
+        box = generate_orignial_window(window,board_01)    
+    else
+        box = update_board_window(window)
+    end
+
+    set_child!(window,box)
+    return window
+end
 
 # Still haven't figured out how to call this from main.jl
 # Have to run julia gui.jl to launch gui for now
 main() do app::Application
-
     window = Window(app) 
-    rand_board = generatesolvableclues() # Using a random board for now
-    grid = generate_board(rand_board);
-
-    
-    newBoard = newboard_button(rand_board);
-    clearBoard = clearboar_button(rand_board);
-    exit = exit_button(window);
-
-    box = hbox(grid, vbox(newBoard, clearBoard, exit))
-
-        
-    set_child!(window, box)
+    set_child!(window,generate_window(window))
     present!(window)
 end
