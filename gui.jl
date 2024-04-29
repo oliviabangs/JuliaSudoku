@@ -2,6 +2,9 @@ using Mousetrap
 include("boardgeneration.jl")
 
 boardUpdate = false;
+board_01 = generatesolvableclues()
+grid = generate_board(rand_board);
+
 function generate_child(label::String, index)::Button
     
     button = Button(Label(label))
@@ -113,7 +116,7 @@ end
 
 function generate_orignial_window(window,rand_board)::Box
     rand_board = generatesolvableclues() # Using a random board for now
-    grid = generate_board(rand_board);
+    global grid = generate_board(rand_board);
 
     newBoard = newboard_button(rand_board);
     clearBoard = clearboard_button(rand_board);    
@@ -124,7 +127,7 @@ end
 
 function update_board_window(window)::Box
     rand_board = generatesolvableclues() # Using a random board for now
-    grid = generate_board(rand_board);
+    global grid = generate_board(rand_board);
 
     newBoard = newboard_button(rand_board);
     clearBoard = clearboard_button(rand_board);    
