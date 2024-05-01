@@ -2,8 +2,8 @@ using Mousetrap
 include("boardgeneration.jl")
 
 boardUpdate = false;
-board_01 = generatesolvableclues()
-grid = generate_board(rand_board);
+# board_01 = generatesolvableclues()
+# grid = generate_board(rand_board);
 
 function generate_child(label::String, index)::Button
     
@@ -57,8 +57,8 @@ end
 function clicked_newBoard(self::Button,board)
     println("New Board Clicked")
     global boardUpdate = true
-    second_board = generatesolvableclues()
-    new_board = generate_board(second_board)
+    new_window = generate_window()
+    open!(new_window)
     return nothing
 end
 
@@ -136,7 +136,8 @@ function update_board_window(window)::Box
     return box
 end
 
-function generate_window(window::Window)::Window 
+function generate_window() do app::Application
+    window = Window(app) 
     board_01 = generatesolvableclues()
     if(boardUpdate == false)
         box = generate_orignial_window(window,board_01)    
@@ -145,13 +146,12 @@ function generate_window(window::Window)::Window
     end
 
     set_child!(window,box)
-    return window
+    present!(window)
+    return nothing
 end
 
 # Still haven't figured out how to call this from main.jl
 # Have to run julia gui.jl to launch gui for now
 main() do app::Application
-    window = Window(app) 
-    generate_window(window)
-    present!(window)
+   generate_window()
 end
