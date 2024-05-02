@@ -32,14 +32,14 @@ function newboard_button(window::Window)::Button
 end
 
 
-function clearboard_button(board)::Button
+function clearboard_button(window::Window)::Button
     #How the button looks
     clearBoard = Button(Label("Clear Board"))
     set_size_request!(clearBoard,Vector2f(50,100))
     set_margin!(clearBoard,10)
     set_vertical_alignment!(clearBoard,ALIGNMENT_END)
     set_horizontal_alignment!(clearBoard,ALIGNMENT_START)
-    connect_signal_clicked!(clicked_clearBoard, clearBoard,board)
+    connect_signal_clicked!(clicked_clearBoard, clearBoard,window)
     return clearBoard
 end
 
@@ -108,7 +108,7 @@ function clicked_newBoard(self::Button,window)
     boardUpdate = true;
     grid = generate_board(board_01)
 
-    clearBoard = clearboard_button(board_01);
+    clearBoard = clearboard_button(window);
     exit = exit_button(window)
     newBoard = newboard_button(window)
 
@@ -117,11 +117,11 @@ function clicked_newBoard(self::Button,window)
     return nothing
 end
 
-function clicked_clearBoard(self::Button,board)
+function clicked_clearBoard(self::Button,window::Window)
     println("Clear Board Clicked")
     grid = generate_board(board_01)
 
-    clearBoard = clearboard_button(board_01)
+    clearBoard = clearboard_button(window)
     exit = exit_button(window)
     newBoard = newboard_button(window)
 
@@ -137,19 +137,19 @@ end
 function generate_orignial_window(window,rand_board)::Box
 
     
-    clearBoard = clearboard_button(rand_board);    
+    clearBoard = clearboard_button(window);    
     exit = exit_button(window);
     newBoard = newboard_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
     return box
 end
 
-function update_board_window(window)::Box
+function update_board_window(window::Window)::Box
     rand_board = generatesolvableclues() # Using a random board for now
     global grid = generate_board(rand_board);
 
   
-    clearBoard = clearboard_button(rand_board);    
+    clearBoard = clearboard_button(window);    
     exit = exit_button(window);
     newBoard = newboard_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
@@ -159,7 +159,7 @@ end
 function create_window(app::Application)::Window
     window = Window(app)
     if(boardUpdate == false)
-        box = generate_orignial_window(window,board)    
+        box = generate_orignial_window(window,board_01)    
     else
         box = update_board_window(window)
     end
