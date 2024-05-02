@@ -1,11 +1,44 @@
 using Mousetrap
 include("boardgeneration.jl")
 
-global boardUpdate = false;
-global board_01 = generatesolvableclues();
+
+global original_gui_board = generatesolvableclues()
+global in_progress_board = original_gui_board
+
+mutable struct GameState
+    original_board::Matrix{Int64}
+    immutable_indices::Array
+    current_board::Matrix{Int64}
+    selected_value::Int64
+    finished_game::Bool
+end
+
+function convert_1d_to_2d(idx::Int, ncols::Int)
+    col, row = divrem(idx - 1, ncols)  # Subtract 1 to adjust for 1-based indexing
+    return (row + 1, col + 1)  # Adding 1 because indices start from 1 in Julia
+end
+
+function find_immutable_indices(original_board::Matrix{Int64})
+    indices = []
+
+    for index in 1:length(original_board)
+        if original_board[index] != 0
+            push!(indices, index)
+        end
+    end
+    return indices
+
+end
+
+global game = GameState(
+    original_gui_board,
+    find_immutable_indices(original_gui_board),
+    in_progress_board,
+    1, 
+    false
+)
 
 function generate_child(label::String, index)::Button
-    
     button = Button(Label(label))
     set_size_request!(button, Vector2f(50, 50)) # Sets button size to 50x50 pixels
     data = [label, index] # Relevant information for callback function for when button is clicked
@@ -13,11 +46,33 @@ function generate_child(label::String, index)::Button
     return button
 end
 
-function on_clicked(self::Button, data)
-    # Temporarily shows value in cell and index, will eventually create a text box that prompts user for new number
-    println("value: $(data[1]), index: $(data[2])")
+function on_input_change(self::SpinButton)::Nothing
+    game.selected_value = get_value(self)
+    
 end
 
+function on_clicked(self::Button, index)::Nothing
+    set_value = string(game.selected_value)
+    two_dim_index = convert_1d_to_2d(index, 9)
+
+    if !(index in game.immutable_indices)
+        # println("1d: $(index), 2d: $(two_dim_index), type: $(typeof(two_dim_index))")
+        if validacrossboard(game.current_board, game.selected_value, two_dim_index)
+            game.current_board[index] = game.selected_value
+            set_child!(self, Label(set_value))
+        else
+            println("not a valid move!")
+        end
+            
+    else 
+        println("that is an immutable index!")
+    end
+
+    if everyspotfull(game.current_board) && boardconfigvalid(game.current_board)
+        game.finished_game = true
+    end
+    
+end
 
 
 function newboard_button(window::Window)::Button
@@ -30,7 +85,6 @@ function newboard_button(window::Window)::Button
     connect_signal_clicked!(clicked_newBoard, newBoard,window)
     return newBoard
 end
-
 
 function clearboard_button(window::Window)::Button
     #How the button looks
@@ -105,7 +159,7 @@ global grid = generate_board(board_01);
 
 function clicked_newBoard(self::Button,window)
     println("New Board Clicked")
-    boardUpdate = true;
+
     grid = generate_board(board_01)
 
     clearBoard = clearboard_button(window);
@@ -135,7 +189,6 @@ function clicked_exit(self::Button,window)
 end
 
 function generate_orignial_window(window,rand_board)::Box
-
     
     clearBoard = clearboard_button(window);    
     exit = exit_button(window);
