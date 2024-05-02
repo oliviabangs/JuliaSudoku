@@ -1,9 +1,9 @@
 using Mousetrap
 include("boardgeneration.jl")
 
-boardUpdate = false;
-# board_01 = generatesolvableclues()
-# grid = generate_board(rand_board);
+global boardUpdate = false;
+global board_01 = generatesolvableclues()
+global newBoard = Button()
 
 function generate_child(label::String, index)::Button
     
@@ -21,14 +21,14 @@ end
 
 
 
-function newboard_button(board)::Button
+function newboard_button(window)::Button
     #How the button looks
     newBoard = Button(Label("New Board"))
     set_size_request!(newBoard,Vector2f(50,100))
     set_margin!(newBoard,10)
     set_vertical_alignment!(newBoard,ALIGNMENT_START)
     set_horizontal_alignment!(newBoard,ALIGNMENT_END)
-    connect_signal_clicked!(clicked_newBoard, newBoard,board)
+    connect_signal_clicked!(clicked_newBoard, newBoard,window)
     return newBoard
 end
 
@@ -54,24 +54,13 @@ function exit_button(window)::Button
     return exit
 end
 
-function clicked_newBoard(self::Button,board)
-    println("New Board Clicked")
-    global boardUpdate = true
-    new_window = generate_window()
-    open!(new_window)
-    return nothing
-end
 
-function clicked_clearBoard(self::Button,board)
-    println("Clear Board Clicked")
-    global boardUpdate = false
-    return nothing
-end
-
-function clicked_exit(self::Button,window)
-    println("Exit Clicked")
-    close!(window)
-    return nothing
+function update_grid(grid::Grid,window)::Window
+    board_02 = generatesolvableclues()
+    grid = generate_board(board_02)
+    new_box = hbox(grid,vbox(newBoard))
+    set_child!(window,new_box);
+    return window
 end
 
 function generate_board(board::Matrix{Int})::Grid
@@ -98,7 +87,6 @@ function generate_board(board::Matrix{Int})::Grid
     
 end
 
-
 function fill_in_gui_board(board)::Array
     cells = [] # Array where Button objects are temporarily stored before going in the grid
     for i in 1:length(board)
@@ -113,12 +101,31 @@ function set_box(grid::Grid,newBoard:: Button,clearBoard:: Button, exit:: Button
     return box
 end
 
+global grid = generate_board(board_01);
+
+function clicked_newBoard(self::Button,window)
+    println("New Board Clicked")
+    boardUpdate = true;
+    grid = generate_board(board_01)
+    new_grid = update_grid(grid,window);
+    present!(window)
+    return nothing
+end
+
+function clicked_clearBoard(self::Button,board)
+    println("Clear Board Clicked")
+    return nothing
+end
+
+function clicked_exit(self::Button,window)
+    println("Exit Clicked")
+    close!(window)
+    return nothing
+end
 
 function generate_orignial_window(window,rand_board)::Box
-    rand_board = generatesolvableclues() # Using a random board for now
-    global grid = generate_board(rand_board);
 
-    newBoard = newboard_button(rand_board);
+    newBoard = newboard_button(window);
     clearBoard = clearboard_button(rand_board);    
     exit = exit_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
@@ -129,29 +136,33 @@ function update_board_window(window)::Box
     rand_board = generatesolvableclues() # Using a random board for now
     global grid = generate_board(rand_board);
 
-    newBoard = newboard_button(rand_board);
+    newBoard = newboard_button(window);
     clearBoard = clearboard_button(rand_board);    
     exit = exit_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
     return box
 end
 
-function generate_window() do app::Application
-    window = Window(app) 
-    board_01 = generatesolvableclues()
+function generate_window(window::Window,board)::Window
     if(boardUpdate == false)
-        box = generate_orignial_window(window,board_01)    
+        box = generate_orignial_window(window,board)    
     else
         box = update_board_window(window)
     end
 
     set_child!(window,box)
-    present!(window)
-    return nothing
+    
+    return window
+end
+function create_window(app::Application)::Window
+    window = Window(app)
+    generate_window(window,board_01)
+    return window
 end
 
 # Still haven't figured out how to call this from main.jl
 # Have to run julia gui.jl to launch gui for now
 main() do app::Application
-   generate_window()
+    window = create_window(app::Application)
+    present!(window)
 end
