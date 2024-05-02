@@ -2,8 +2,7 @@ using Mousetrap
 include("boardgeneration.jl")
 
 global boardUpdate = false;
-global board_01 = generatesolvableclues()
-global newBoard = Button()
+global board_01 = generatesolvableclues();
 
 function generate_child(label::String, index)::Button
     
@@ -21,7 +20,7 @@ end
 
 
 
-function newboard_button(window)::Button
+function newboard_button(window::Window)::Button
     #How the button looks
     newBoard = Button(Label("New Board"))
     set_size_request!(newBoard,Vector2f(50,100))
@@ -31,6 +30,7 @@ function newboard_button(window)::Button
     connect_signal_clicked!(clicked_newBoard, newBoard,window)
     return newBoard
 end
+
 
 function clearboard_button(board)::Button
     #How the button looks
@@ -55,10 +55,10 @@ function exit_button(window)::Button
 end
 
 
-function update_grid(grid::Grid,window)::Window
+function update_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
     board_02 = generatesolvableclues()
     grid = generate_board(board_02)
-    new_box = hbox(grid,vbox(newBoard))
+    new_box = hbox(grid,vbox(newBoard,clearBoard,exit))
     set_child!(window,new_box);
     return window
 end
@@ -107,7 +107,10 @@ function clicked_newBoard(self::Button,window)
     println("New Board Clicked")
     boardUpdate = true;
     grid = generate_board(board_01)
-    new_grid = update_grid(grid,window);
+    clearBoard = clearboard_button(board_01);
+    exit = exit_button(window)
+    newBoard = newboard_button(window)
+    new_grid = update_grid(grid,newBoard,clearBoard,exit,window);
     present!(window)
     return nothing
 end
@@ -125,9 +128,10 @@ end
 
 function generate_orignial_window(window,rand_board)::Box
 
-    newBoard = newboard_button(window);
+    
     clearBoard = clearboard_button(rand_board);    
     exit = exit_button(window);
+    newBoard = newboard_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
     return box
 end
@@ -136,9 +140,10 @@ function update_board_window(window)::Box
     rand_board = generatesolvableclues() # Using a random board for now
     global grid = generate_board(rand_board);
 
-    newBoard = newboard_button(window);
+  
     clearBoard = clearboard_button(rand_board);    
     exit = exit_button(window);
+    newBoard = newboard_button(window);
     box = set_box(grid,newBoard,clearBoard,exit)
     return box
 end
