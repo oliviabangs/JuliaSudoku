@@ -3,7 +3,7 @@ include("boardgeneration.jl")
 
 
 global original_gui_board = generatesolvableclues()
-global in_progress_board = original_gui_board
+global in_progress_board = copy(original_gui_board)
 
 mutable struct GameState
     original_board::Matrix{Int64}
@@ -118,26 +118,6 @@ function exit_button(window)::Button
     return exit
 end
 
-
-function update_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
-    board_02 = generatesolvableclues()
-    grid = generate_board(board_02)
-    spin_button = create_spin_button()
-    side_buttons = vbox(newBoard, exit, clearBoard)
-    box = hbox(spin_button,grid,side_buttons)
-    set_child!(window,box);
-    return window
-end
-
-function revert_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
-    grid = generate_board(original_gui_board)
-    spin_button = create_spin_button()
-    side_buttons = vbox(newBoard, exit, clearBoard)
-    box = hbox(spin_button,grid,side_buttons)
-    set_child!(window,box);
-    return window
-end
-
 function generate_board(board::Matrix{Int})::Grid
     grid = Grid() # Declaring grid where Button objects will eventually be pushed into
     display(board) # Showing it in terminal to compare against GUI
@@ -188,6 +168,7 @@ function clicked_newBoard(self::Button,window)
     newBoard = newboard_button(window)
 
     new_grid = update_grid(grid,newBoard,clearBoard,exit,window);
+
     present!(window)
     return nothing
 end
@@ -208,6 +189,26 @@ function clicked_exit(self::Button,window)
     println("Exit Clicked")
     close!(window)
     return nothing
+end
+
+function update_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
+    global original_gui_board = generatesolvableclues()
+    global in_progress_board = original_gui_board
+    global grid = generate_board(original_gui_board)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
+    return window
+end
+
+function revert_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
+    grid = generate_board(original_gui_board)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
+    return window
 end
 
 function generate_orignial_window(window,rand_board)::Box
