@@ -107,9 +107,11 @@ function clicked_newBoard(self::Button,window)
     println("New Board Clicked")
     boardUpdate = true;
     grid = generate_board(board_01)
+
     clearBoard = clearboard_button(board_01);
     exit = exit_button(window)
     newBoard = newboard_button(window)
+
     new_grid = update_grid(grid,newBoard,clearBoard,exit,window);
     present!(window)
     return nothing
@@ -117,6 +119,12 @@ end
 
 function clicked_clearBoard(self::Button,board)
     println("Clear Board Clicked")
+    grid = generate_board(board_01)
+
+    clearBoard = clearboard_button(board_01)
+    exit = exit_button(window)
+    newBoard = newboard_button(window)
+
     return nothing
 end
 
@@ -148,7 +156,8 @@ function update_board_window(window)::Box
     return box
 end
 
-function generate_window(window::Window,board)::Window
+function create_window(app::Application)::Window
+    window = Window(app)
     if(boardUpdate == false)
         box = generate_orignial_window(window,board)    
     else
@@ -156,12 +165,6 @@ function generate_window(window::Window,board)::Window
     end
 
     set_child!(window,box)
-    
-    return window
-end
-function create_window(app::Application)::Window
-    window = Window(app)
-    generate_window(window,board_01)
     return window
 end
 
