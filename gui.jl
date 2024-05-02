@@ -41,12 +41,23 @@ global game = GameState(
 function generate_child(label::String, index)::Button
     button = Button(Label(label))
     set_size_request!(button, Vector2f(50, 50)) # Sets button size to 50x50 pixels
-    data = [label, index] # Relevant information for callback function for when button is clicked
-    connect_signal_clicked!(on_clicked, button, data ) # Hooks up button with callback 
+    # data = [label, index] # Relevant information for callback function for when button is clicked
+    connect_signal_clicked!(on_clicked, button, index ) # Hooks up button with callback 
     return button
 end
 
+function create_spin_button()
+    spin_button = SpinButton(1, 9, 1)
+    set_size_request!(spin_button,Vector2f(50, 50))
+    set_orientation!(spin_button, ORIENTATION_VERTICAL)
+    set_value!(spin_button, 1)
+    connect_signal_value_changed!(on_input_change, spin_button)
+    return spin_button
+
+end
+
 function on_input_change(self::SpinButton)::Nothing
+    
     game.selected_value = get_value(self)
     
 end
@@ -73,7 +84,6 @@ function on_clicked(self::Button, index)::Nothing
     end
     
 end
-
 
 function newboard_button(window::Window)::Button
     #How the button looks
@@ -112,8 +122,19 @@ end
 function update_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
     board_02 = generatesolvableclues()
     grid = generate_board(board_02)
-    new_box = hbox(grid,vbox(newBoard,clearBoard,exit))
-    set_child!(window,new_box);
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
+    return window
+end
+
+function revert_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
+    grid = generate_board(original_gui_board)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
     return window
 end
 
@@ -155,12 +176,12 @@ function set_box(grid::Grid,newBoard:: Button,clearBoard:: Button, exit:: Button
     return box
 end
 
-global grid = generate_board(board_01);
+global grid = generate_board(original_gui_board);
 
 function clicked_newBoard(self::Button,window)
     println("New Board Clicked")
-
-    grid = generate_board(board_01)
+    
+    grid = generate_board(original_gui_board);
 
     clearBoard = clearboard_button(window);
     exit = exit_button(window)
@@ -173,12 +194,13 @@ end
 
 function clicked_clearBoard(self::Button,window::Window)
     println("Clear Board Clicked")
-    grid = generate_board(board_01)
+    grid = generate_board(in_progress_board);
 
     clearBoard = clearboard_button(window)
     exit = exit_button(window)
     newBoard = newboard_button(window)
 
+    new_grid = revert_grid(grid,newBoard,clearBoard,exit,window);
     return nothing
 end
 
@@ -193,14 +215,16 @@ function generate_orignial_window(window,rand_board)::Box
     clearBoard = clearboard_button(window);    
     exit = exit_button(window);
     newBoard = newboard_button(window);
-    box = set_box(grid,newBoard,clearBoard,exit)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
     return box
 end
 
 
 function create_window(app::Application)::Window
     window = Window(app)
-    box = generate_orignial_window(window,board_01)    
+    box = generate_orignial_window(window,original_gui_board)    
     set_child!(window,box)
     return window
 end
