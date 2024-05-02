@@ -144,26 +144,10 @@ function generate_orignial_window(window,rand_board)::Box
     return box
 end
 
-function update_board_window(window::Window)::Box
-    rand_board = generatesolvableclues() # Using a random board for now
-    global grid = generate_board(rand_board);
-
-  
-    clearBoard = clearboard_button(window);    
-    exit = exit_button(window);
-    newBoard = newboard_button(window);
-    box = set_box(grid,newBoard,clearBoard,exit)
-    return box
-end
 
 function create_window(app::Application)::Window
     window = Window(app)
-    if(boardUpdate == false)
-        box = generate_orignial_window(window,board_01)    
-    else
-        box = update_board_window(window)
-    end
-
+    box = generate_orignial_window(window,board_01)    
     set_child!(window,box)
     return window
 end
