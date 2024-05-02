@@ -1,115 +1,129 @@
 using Mousetrap
-# include("boardgeneration.jl")
+include("boardgeneration.jl")
+
+
+global original_gui_board = generatesolvableclues()
+global in_progress_board = copy(original_gui_board)
+
+mutable struct GameState
+    original_board::Matrix{Int64}
+    immutable_indices::Array
+    current_board::Matrix{Int64}
+    selected_value::Int64
+    finished_game::Bool
+end
+
+function convert_1d_to_2d(idx::Int, ncols::Int)
+    col, row = divrem(idx - 1, ncols)  # Subtract 1 to adjust for 1-based indexing
+    return (row + 1, col + 1)  # Adding 1 because indices start from 1 in Julia
+end
+
+function find_immutable_indices(original_board::Matrix{Int64})
+    indices = []
+
+    for index in 1:length(original_board)
+        if original_board[index] != 0
+            push!(indices, index)
+        end
+    end
+    return indices
+
+end
+
+global game = GameState(
+    original_gui_board,
+    find_immutable_indices(original_gui_board),
+    in_progress_board,
+    1, 
+    false
+)
 
 function generate_child(label::String, index)::Button
-    
     button = Button(Label(label))
     set_size_request!(button, Vector2f(50, 50)) # Sets button size to 50x50 pixels
-    data = [label, index] # Relevant information for callback function for when button is clicked
-    connect_signal_clicked!(on_clicked, button, data ) # Hooks up button with callback 
+    # data = [label, index] # Relevant information for callback function for when button is clicked
+    connect_signal_clicked!(on_clicked, button, index ) # Hooks up button with callback 
     return button
 end
 
-function on_clicked(self::Button, data)
-    # Temporarily shows value in cell and index, will eventually create a text box that prompts user for new number
-    println("value: $(data[1]), index: $(data[2])")
+function create_spin_button()
+    spin_button = SpinButton(1, 9, 1)
+    set_size_request!(spin_button,Vector2f(50, 50))
+    set_orientation!(spin_button, ORIENTATION_VERTICAL)
+    set_value!(spin_button, 1)
+    connect_signal_value_changed!(on_input_change, spin_button)
+    return spin_button
+
 end
 
+function on_input_change(self::SpinButton)::Nothing
+    
+    game.selected_value = get_value(self)
+    
+end
 
+function on_clicked(self::Button, index)::Nothing
+    set_value = string(game.selected_value)
+    two_dim_index = convert_1d_to_2d(index, 9)
 
-function newboard_button(board)::Button
+    if !(index in game.immutable_indices)
+        # println("1d: $(index), 2d: $(two_dim_index), type: $(typeof(two_dim_index))")
+        if validacrossboard(game.current_board, game.selected_value, two_dim_index)
+            game.current_board[index] = game.selected_value
+            set_child!(self, Label(set_value))
+        else
+            println("not a valid move!")
+        end
+            
+    else 
+        println("that is an immutable index!")
+    end
+
+    if everyspotfull(game.current_board) && boardconfigvalid(game.current_board)
+        game.finished_game = true
+    end
+    
+end
+
+function newboard_button(window::Window)::Button
     #How the button looks
     newBoard = Button(Label("New Board"))
     set_size_request!(newBoard,Vector2f(50,100))
-    set_margin!(newBoard,50)
-    set_vertical_alignment!(newBoard,ALIGNMENT_CENTER)
-    set_horizontal_alignment!(newBoard,ALIGNMENT_START)
-    
-    #Call to change the board generated
-    board_two = [0,1]
-    
-    connect_signal_clicked!(clicked_newBoard, newBoard, board_two)
+    set_margin!(newBoard,10)
+    set_vertical_alignment!(newBoard,ALIGNMENT_START)
+    set_horizontal_alignment!(newBoard,ALIGNMENT_END)
+    connect_signal_clicked!(clicked_newBoard, newBoard,window)
     return newBoard
 end
 
-function clearboar_button(board)::Button
+function clearboard_button(window::Window)::Button
     #How the button looks
     clearBoard = Button(Label("Clear Board"))
     set_size_request!(clearBoard,Vector2f(50,100))
-    set_margin!(clearBoard,50)
-    set_vertical_alignment!(clearBoard,ALIGNMENT_CENTER)
-    set_horizontal_alignment!(clearBoard,ALIGNMENT_CENTER)
-
-    #Call to remove the changes
-    board_ten = [0,10]
-    connect_signal_clicked!(clicked_clearBoard, clearBoard, board_ten)
+    set_margin!(clearBoard,10)
+    set_vertical_alignment!(clearBoard,ALIGNMENT_END)
+    set_horizontal_alignment!(clearBoard,ALIGNMENT_START)
+    connect_signal_clicked!(clicked_clearBoard, clearBoard,window)
     return clearBoard
 end
 
-function exit_button()::Button
+function exit_button(window)::Button
     #How the button looks
-    exit = Button(Label("Exit"))
+    exit = Button(Label("Exit Sudoku"))
     set_size_request!(exit,Vector2f(50,100))
-    set_margin!(exit,50)
-    set_vertical_alignment!(exit,ALIGNMENT_CENTER)
+    set_margin!(exit,10)
     set_horizontal_alignment!(exit,ALIGNMENT_END)
-
+    set_vertical_alignment!(exit,ALIGNMENT_START)
+    connect_signal_clicked!(clicked_exit, exit,window)
     return exit
 end
 
-function clicked_newBoard(self::Button,board)
-    println("Current board: $board")
-    board[2] += 1
-    println("New board:$board")
-    return nothing
-end
-
-function clicked_clearBoard(self::Button,board)
-    println("Chaneged board:$board")
-    if(board[2] != 0)
-        board[2] -= 1
-    end
-    println("Cleared board:$board")
-    return nothing
-end
-
-# main() do app::Application
-#     window = Window(app)
-    
-#     board = [0,0];
-    
-#     newBoard = newboard_button(board);
-#     clearBoard = clearboar_button(board);
-#     exit = exit_button();
-
-#     println("The first board: $board")
-
-#     connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
-#         println("exit clicked")
-#     end
-
-
-#     set_child!(window, hbox(newBoard,exit,clearBoard))
-#     present!(window)
-# end
-
-# Still haven't figured out how to call this from main.jl
-# Have to run julia gui.jl to launch gui for now
-main() do app::Application
-
-    window = Window(app) 
-
+function generate_board(board::Matrix{Int})::Grid
     grid = Grid() # Declaring grid where Button objects will eventually be pushed into
+    display(board) # Showing it in terminal to compare against GUI
 
-    rand_board = rand(1:9, 9, 9) # Using a random board for now
-    display(rand_board) # Showing it in terminal to compare against GUI
+    cells = fill_in_gui_board(board)
 
-    cells = [] # Array where Button objects are temporarily stored before going in the grid
-    for i in 1:length(rand_board)
-        newCell = generate_child(string(rand_board[i]), i) # Creates button object displaying proper value and storing its index
-        push!(cells, newCell)
-    end
-    
     row = 1
     column = 1
 
@@ -124,27 +138,101 @@ main() do app::Application
         end
     end
 
-
-    # window = Window(app)
+    return grid
     
-    board = [0,0];
-    
-    newBoard = newboard_button(board);
-    clearBoard = clearboar_button(board);
-    exit = exit_button();
+end
 
-    println("The first board: $board")
-
-    connect_signal_clicked!(exit,newBoard) do exit::Button,newBoard::Button
-        println("exit clicked")
+function fill_in_gui_board(board)::Array
+    cells = [] # Array where Button objects are temporarily stored before going in the grid
+    for i in 1:length(board)
+        newCell = generate_child(string(board[i]), i) # Creates button object displaying proper value and storing its index
+        push!(cells, newCell)
     end
+    return cells
+end
 
-    box = hbox(grid, newBoard, exit, clearBoard)
+function set_box(grid::Grid,newBoard:: Button,clearBoard:: Button, exit:: Button):: Box
+    box = hbox(grid,vbox(newBoard,clearBoard,exit))
+    return box
+end
 
-        
-    set_child!(window, box)
-    # set_child!(window, hbox(newBoard,exit,clearBoard))
+global grid = generate_board(original_gui_board);
+
+function clicked_newBoard(self::Button,window)
+    println("New Board Clicked")
+    
+    grid = generate_board(original_gui_board);
+
+    clearBoard = clearboard_button(window);
+    exit = exit_button(window)
+    newBoard = newboard_button(window)
+
+    new_grid = update_grid(grid,newBoard,clearBoard,exit,window);
+
     present!(window)
+    return nothing
+end
 
-    # present!(window)
+function clicked_clearBoard(self::Button,window::Window)
+    println("Clear Board Clicked")
+    grid = generate_board(in_progress_board);
+
+    clearBoard = clearboard_button(window)
+    exit = exit_button(window)
+    newBoard = newboard_button(window)
+
+    new_grid = revert_grid(grid,newBoard,clearBoard,exit,window);
+    return nothing
+end
+
+function clicked_exit(self::Button,window)
+    println("Exit Clicked")
+    close!(window)
+    return nothing
+end
+
+function update_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
+    global original_gui_board = generatesolvableclues()
+    global in_progress_board = original_gui_board
+    global grid = generate_board(original_gui_board)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
+    return window
+end
+
+function revert_grid(grid::Grid,newBoard::Button,clearBoard::Button,exit::Button,window::Window)::Window
+    grid = generate_board(original_gui_board)
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    set_child!(window,box);
+    return window
+end
+
+function generate_orignial_window(window,rand_board)::Box
+    
+    clearBoard = clearboard_button(window);    
+    exit = exit_button(window);
+    newBoard = newboard_button(window);
+    spin_button = create_spin_button()
+    side_buttons = vbox(newBoard, exit, clearBoard)
+    box = hbox(spin_button,grid,side_buttons)
+    return box
+end
+
+
+function create_window(app::Application)::Window
+    window = Window(app)
+    box = generate_orignial_window(window,original_gui_board)    
+    set_child!(window,box)
+    return window
+end
+
+# Still haven't figured out how to call this from main.jl
+# Have to run julia gui.jl to launch gui for now
+main() do app::Application
+    window = create_window(app::Application)
+    present!(window)
 end

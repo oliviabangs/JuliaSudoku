@@ -8,3 +8,12 @@ SLF4J: Actual provider is of type [scribe.slf4j.ScribeServiceProvider@6e44ab7b]
 2024.04.27 23:01:48 WARN  Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
 2024.04.27 23:01:48 WARN  no build tool detected in workspace '/Users/marymargaretcooney/next_gen_projects/JuliaSudoku'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
 2024.04.27 23:01:49 WARN  Build server is not auto-connectable.
+2024.04.29 16:40:23 INFO  Started: Metals version 1.3.0 in folders '/Users/marymargaretcooney/next_gen_projects/JuliaSudoku' for client Visual Studio Code 1.75.1.
+SLF4J: Class path contains multiple SLF4J providers.
+SLF4J: Found provider [scribe.slf4j.ScribeServiceProvider@118d75fb]
+SLF4J: Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@9ca97d0]
+SLF4J: See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual provider is of type [scribe.slf4j.ScribeServiceProvider@118d75fb]
+2024.04.29 16:40:28 WARN  Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2024.04.29 16:40:28 WARN  no build tool detected in workspace '/Users/marymargaretcooney/next_gen_projects/JuliaSudoku'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2024.04.29 16:40:29 WARN  Build server is not auto-connectable.
