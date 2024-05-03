@@ -59,7 +59,7 @@ end
 function on_input_change(self::SpinButton)::Nothing
     
     game.selected_value = get_value(self)
-    
+    println("Selected value: $(game.selected_value)")
 end
 
 function on_clicked(self::Button, index)::Nothing
