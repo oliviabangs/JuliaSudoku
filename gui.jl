@@ -41,7 +41,15 @@ global game = GameState(
 function generate_child(label::String, index)::Button
     button = Button(Label(label))
     set_size_request!(button, Vector2f(50, 50)) # Sets button size to 50x50 pixels
-    # data = [label, index] # Relevant information for callback function for when button is clicked
+
+    if index in 19:27 || index in 46:54
+        set_margin_end!(button, 10)
+    end
+
+    if (index - 3) % 9 in (0, 3)
+        set_margin_bottom!(button, 10)
+    end
+
     connect_signal_clicked!(on_clicked, button, index ) # Hooks up button with callback 
     return button
 end
@@ -51,6 +59,7 @@ function create_spin_button()
     set_size_request!(spin_button,Vector2f(50, 50))
     set_orientation!(spin_button, ORIENTATION_VERTICAL)
     set_value!(spin_button, 1)
+    set_margin_end!(spin_button, 10)
     connect_signal_value_changed!(on_input_change, spin_button)
     return spin_button
 
