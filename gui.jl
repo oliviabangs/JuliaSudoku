@@ -86,10 +86,11 @@ function on_clicked(self::Button, data)::Nothing
     if !(index in game.immutable_indices)
         # println("1d: $(index), 2d: $(two_dim_index), type: $(typeof(two_dim_index))")
         if validacrossboard(game.current_board, game.selected_value, two_dim_index) || label == ""
+
+            game.current_board[index] = game.selected_value
             if game.selected_value == 0
                 set_value = ""
             end
-            game.current_board[index] = game.selected_value
             set_child!(self, Label(set_value))
         else
             println("not a valid move!")
