@@ -36,7 +36,7 @@ function placevalues(box::Int, takennums::Dict{Int, Int}, clues::Vector{Tuple{In
     if length(clues) < 18
         boxslice = getboxslice(box, board)
         choosennum = rand(1:9)
-
+        #add function
         if takennums[choosennum] > 1
             if numberofoptionsremainingforbox(board, takennums, box) < 2 
                 removedclue = pop!(clues)
