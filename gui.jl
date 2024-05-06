@@ -1,7 +1,6 @@
 using Mousetrap
 include("boardgeneration.jl")
 
-
 global original_gui_board = generatesolvableclues()
 global in_progress_board = copy(original_gui_board)
 
@@ -87,8 +86,7 @@ function on_clicked(self::Button, data)::Nothing
     two_dim_index = convert_1d_to_2d(index, 9)
 
     if !(index in game.immutable_indices)
-        # println("1d: $(index), 2d: $(two_dim_index), type: $(typeof(two_dim_index))")
-        if validacrossboard(game.current_board, game.selected_value, two_dim_index) || label == ""
+        if validacrossboard(game.current_board, game.selected_value, two_dim_index)
 
             game.current_board[index] = game.selected_value
             if game.selected_value == 0
