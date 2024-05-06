@@ -39,18 +39,33 @@ global game = GameState(
 )
 
 function generate_child(label::String, index)::Button
+    if label == "0"
+        label = ""
+    end 
+
     button = Button(Label(label))
     set_size_request!(button, Vector2f(50, 50)) # Sets button size to 50x50 pixels
-    # data = [label, index] # Relevant information for callback function for when button is clicked
-    connect_signal_clicked!(on_clicked, button, index ) # Hooks up button with callback 
+
+    if index in 19:27 || index in 46:54
+        set_margin_end!(button, 10)
+    end
+
+    if (index - 3) % 9 in (0, 3)
+        set_margin_bottom!(button, 10)
+    end
+
+    data = [index, label]
+
+    connect_signal_clicked!(on_clicked, button, data ) # Hooks up button with callback 
     return button
 end
 
 function create_spin_button()
-    spin_button = SpinButton(1, 9, 1)
+    spin_button = SpinButton(0, 9, 1)
     set_size_request!(spin_button,Vector2f(50, 50))
     set_orientation!(spin_button, ORIENTATION_VERTICAL)
     set_value!(spin_button, 1)
+    set_margin_end!(spin_button, 10)
     connect_signal_value_changed!(on_input_change, spin_button)
     return spin_button
 
@@ -59,18 +74,23 @@ end
 function on_input_change(self::SpinButton)::Nothing
     
     game.selected_value = get_value(self)
-    println("$(game.selected_value)")
-    
+    println("Selected value: $(game.selected_value)")
 end
 
-function on_clicked(self::Button, index)::Nothing
+function on_clicked(self::Button, data)::Nothing
+    index = data[1]
+    label = data[2]
     set_value = string(game.selected_value)
     two_dim_index = convert_1d_to_2d(index, 9)
 
     if !(index in game.immutable_indices)
         # println("1d: $(index), 2d: $(two_dim_index), type: $(typeof(two_dim_index))")
-        if validacrossboard(game.current_board, game.selected_value, two_dim_index)
+        if validacrossboard(game.current_board, game.selected_value, two_dim_index) || label == ""
+
             game.current_board[index] = game.selected_value
+            if game.selected_value == 0
+                set_value = ""
+            end
             set_child!(self, Label(set_value))
         else
             println("not a valid move!")
